@@ -27,7 +27,9 @@ will result in this HTML-Code:
 
 Unfortunately GitHub doesn't allow this html in this readme, but to get an Idea: the Formula looks like this:
 
+<div>
 <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>f</mi><mo>&#x00028;</mo><mi>x</mi><mo>&#x00029;</mo><mo>&#x0003D;</mo><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mo>&#x02212;</mo><mn>2</mn><mi>x</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></math>
+</div>
 
 In addition to assistin you in creating your exercises TeXerBase will manage your solution as well as some meta-information like the source, the license, author, skill-level and, most important, lets you categorize your exercises in subjects and topics.
 
