@@ -44,13 +44,13 @@ The structure is in the file `structure.yaml` which can be changed to your needs
 
 - It's in german Language so far - let me know if you want to make a translation!
 - the browser needs to support `MathML`
-- only SqLite-Database supported
+- only SqLite-Database supported, but feel free to add i.e. `postges`-support to the `modules/dbio.py` and the `modules/dbInit.py` if you need it to scale.
 - for secure/limited/external access I recommend using `nginx` as reverse proxy
 
 ## Further Ideas
 
 Maybe I will extend TeXerBase in the future, depending on my needs, with some of the following:
 
-- allow formulas in `\[ \]` and `\( \)`- enviroments as well as in `$ $` and `$$ $$`-environments
+- allow formulas in `\[ \]` and `\( \)`- enviroments in addition to the already supported `$ $` and `$$ $$`-environments
 - include an option to assemble handsets of exercises
-- ...tell me about your ideas!
+- ...tell me about your ideas or make a nice pull-request!
