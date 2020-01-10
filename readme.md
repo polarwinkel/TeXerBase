@@ -6,7 +6,7 @@ TeXerBase is a database to create and manage exercises.
 
 Exercises have to be coded in Markdown with the special enhancement, that you can write Formulas in TeX/LaTeX, resolvind the problem that formulas are not natively supported by Markdown.
 
-This code:
+You could write this code for an exercise:
 
 ```
 ### $pq$-formula
@@ -15,21 +15,7 @@ This code:
 2. Solve the quadratic equation $f(x)= 3x^2 - 2x + 1$
 ```
 
-will result in this HTML-Code:
-
-```
-<h3><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>p</mi><mi>q</mi></mrow></math>-formula</h3>
-<ol>
-<li>Describe what the <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>p</mi><mi>q</mi></mrow></math>-Formula <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>x</mi><mrow><mn>1</mn><mi>,</mi><mn>2</mn></mrow></msub><mo>&#x0003D;</mo><mo>&#x02212;</mo><mfrac><mrow><mi>p</mi></mrow><mrow><mn>2</mn></mrow></mfrac><mi>&#x000B1;</mi><msqrt><mrow><mo>&#x00028;</mo><mfrac><mrow><mi>p</mi></mrow><mrow><mn>2</mn></mrow></mfrac><msup><mo>&#x00029;</mo><mn>2</mn></msup><mo>&#x02212;</mo><mi>q</mi></mrow></msqrt></mrow></math> is for.</li>
-<li>Solve the quadratic equation <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>f</mi><mo>&#x00028;</mo><mi>x</mi><mo>&#x00029;</mo><mo>&#x0003D;</mo><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mo>&#x02212;</mo><mn>2</mn><mi>x</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></math></li>
-</ol>
-```
-
-Unfortunately GitHub doesn't allow this html in this readme, but to get an Idea: the Formula looks like this:
-
-<div>
-<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>f</mi><mo>&#x00028;</mo><mi>x</mi><mo>&#x00029;</mo><mo>&#x0003D;</mo><mn>3</mn><msup><mi>x</mi><mn>2</mn></msup><mo>&#x02212;</mo><mn>2</mn><mi>x</mi><mo>&#x0002B;</mo><mn>1</mn></mrow></math>
-</div>
+Unfortunately GitHub doesn't allow html in this readme so I can't show you the result here :-(
 
 In addition to assistin you in creating your exercises TeXerBase will manage your solution as well as some meta-information like the source, the license, author, skill-level and, most important, lets you categorize your exercises in subjects and topics.
 
