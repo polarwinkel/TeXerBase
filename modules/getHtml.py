@@ -65,3 +65,30 @@ def viewExercise(exercise):
         result += mdTeX2html.convert(exercise[10])
     result += '<p style="text-align:right;" class="no-print"><a href="../editExercise/%s">Aufgabe bearbeiten</a></p>\n' % exercise[0]
     return result
+
+def getSheet(title, exercises, option):
+    '''
+        returns a sheet with the exercises
+        A given string 'solutions' or 'source' semicolon-separated at the end
+        will return according pages.
+    '''
+    result = '<h1>%s</h1>' % title
+    i = 1
+    if option=='exercises' or option=='':
+        for ex in exercises:
+            result += '<h2>Aufgabe %s</h2>' % str(i)
+            result += mdTeX2html.convert(ex[4])
+            i+=1
+    elif option == 'solutions':
+        for ex in exercises:
+            result += '<h2>Aufgabe %s</h2>' % str(i)
+            result += mdTeX2html.convert(ex[5])
+            i+=1
+    elif option == 'source':
+        result += '<code>'
+        for ex in exercises:
+            result += ex[4]
+        result += '</code>'
+    else:
+        result = '<p style="color:red;">ERROR 404: Illegal URL.</p>'
+    return result

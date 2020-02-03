@@ -130,6 +130,15 @@ class ExerDb:
         result = cursor.fetchone()
         return result
     
+    def getExercises(self, exes):
+        ''' returns a list of exersizes from the database as dictionary '''
+        cursor = self._connection.cursor()
+        sqlTemplate = '''SELECT * FROM exercises WHERE id IN %s''' % str(tuple(exes))
+        # TODO: find a template-solution (Problem: It doesn't want to take a touple)
+        cursor.execute(sqlTemplate)
+        result = cursor.fetchall()
+        return result
+    
     def getSubjects(self):
         '''returns a list of all subjects'''
         cursor = self._connection.cursor()
