@@ -8,7 +8,7 @@ import os
 import sqlite3
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart   
-from urllib.parse import parse_qs
+from urllib import parse
 import json
 from jinja2 import Template
 from multiprocessing import Process
@@ -32,17 +32,22 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         self._set_headers;
     
     def do_GET(self):
-        ''' The GET-Handler returns a certain exercice '''
+        ''' The GET-Handler returns a certain exercise '''
         if self.path.startswith('/img/'):
             self.sendStatic()
             return
         self._set_headers()
         with open('template/base.tpl') as f:
             basetemplate = Template(f.read())
+        with open('template/nav.tpl') as f:
+            nav = f.read()
         
         # switch for the path:
         if self.path == '/':
             content = getHtml.getStart(db.getSubjects())
+        elif self.path == '/reloadDb':
+            db.reloadDb(dbfile)
+            content = '<p>Datenbank erfolgreich neu geladen!</p><br />\n'
         elif self.path == '/test':
             content = '<p>Dein Pfad: %s</p><br />\n' % self.path
             content += getHtml.getTest()
@@ -84,18 +89,19 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             # Example: /sheet/Title;1,2,3;solutions
             # options: '', 'solutions' and 'source'
             # TODO: create a sepatate def for this, returning a "url-Builder"-page by default or if illeral url
-            title = self.path.strip('/sheet/').split(';')[0]
+            title = parse.unquote(self.path.strip('/sheet/').split(';')[0])
             exes = self.path.strip('/sheet/').split(';')[1].split(',')
             exes = list(map(int, exes))
             exercises = db.getExercises(exes)
             option = self.path.strip('/sheet/').split(';')[2]
             content = getHtml.getSheet(title, exercises, option)
+            #nav = ''
         else:
             content = 'ERROR 404: The path was not found by TeXerBase'
             content += '<p>Your path: %s</p><br />\n' % self.path
         
         # Write content as utf-8 data
-        out = basetemplate.render(content=content)
+        out = basetemplate.render(nav=nav, content=content)
         self.wfile.write(bytes(out, "utf8"))
         return
     
@@ -144,7 +150,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             postvars = parse_multipart(self.rfile, pdict)
         elif ctype == 'application/x-www-form-urlencoded':
             length = int(self.headers['content-length'])
-            postvars = parse_qs(
+            postvars = parse.parse_qs(
                     self.rfile.read(length).decode('utf-8'), 
                     keep_blank_values=1)
         elif ctype == 'application/mdtex':
@@ -174,6 +180,8 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         
         with open('template/base.tpl') as f:
             basetemplate = Template(f.read())
+        with open('template/nav.tpl') as f:
+            nav = f.read()
         # Build the answer content:
         if result == 'exists':
             content = '<h1 style="color:red;">Fehler!</h1>\n'
@@ -188,7 +196,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             content = '<h1 style="color:red;">500: Server-error in POST-path!</h1>\n' + result
         
         # Write content as utf-8 data
-        out = basetemplate.render(content=content)
+        out = basetemplate.render(nav=nav, content=content)
         self.wfile.write(bytes(out, "utf8"))
         return
 

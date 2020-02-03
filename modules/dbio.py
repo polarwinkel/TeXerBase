@@ -23,6 +23,12 @@ class ExerDb:
         dbInit.checkSubjects(self)
         dbInit.checkLicenses(self)
     
+    def reloadDb(self, dbfile):
+        '''reloads the database file, i.e. after external changes/sync'''
+        self._connection.commit() # not necessary, just to be sure
+        self._connection.close()
+        self._connection = sqlite3.connect(dbfile)
+    
     def checkTitle(self, title):
         '''checks if a title is taken already for an exercise and returns the id or -1'''
         cursor = self._connection.cursor()
@@ -133,8 +139,7 @@ class ExerDb:
     def getExercises(self, exes):
         ''' returns a list of exersizes from the database as dictionary '''
         cursor = self._connection.cursor()
-        sqlTemplate = '''SELECT * FROM exercises WHERE id IN %s''' % str(tuple(exes))
-        # TODO: find a template-solution (Problem: It doesn't want to take a touple)
+        sqlTemplate = '''SELECT * FROM exercises WHERE id IN {}'''.format(tuple(exes))
         cursor.execute(sqlTemplate)
         result = cursor.fetchall()
         return result

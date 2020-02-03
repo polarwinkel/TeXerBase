@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html id="html">
     <head>
         <title>TeXerBase Exercise Database</title>
         <meta charset="utf-8" />
@@ -14,6 +14,14 @@
                 var box = document.getElementById('requestbox');
                 box.innerHTML = xhr.responseText;
             }
+            function printView() {
+                document.getElementById('html').style.fontSize = '16px';
+                document.getElementById('html').style.backgroundColor = '#aaa';
+                document.getElementById('body').style.width = '21.0cm';
+                document.getElementById('body').style.paddingRight = '1.5cm';
+                document.getElementById('body').style.paddingLeft = '1.5cm';
+                document.getElementById('nav').style.display = 'none';
+            }
         </script>
         <style>
             html {
@@ -21,18 +29,20 @@
                 background-color: #040;
                 font-family: "latin modern roman", Garamond, Georgia, "Times New Roman", Times, sans-serif;
                 color: black;
+                font-size: 1.6em;
             }
             body {
                 max-width: 30cm;
                 margin: auto;
+                margin-top: 1em;
+                margin-bottom: 1em;
                 background-color: white;
                 padding: 4em;
                 padding-top: 1em;
-                padding-bottom: 3em;
-                font-size: 1.6em;
+                padding-bottom: 1em;
             }
             math {
-                font-size: 1.1em;
+                font-size: 1rem;
             }
             label{
                 display: inline-block;
@@ -41,30 +51,47 @@
                 width: 250px;
                 text-align: right;
                 margin-right: 0.5em;
+                font-size: 1rem;
             }
             input {
+                font-size: 1rem;
+            }
+            select {
+                font-size: 1rem;
+            }
+            textarea {
                 display: inline-block;
                 float: left;
+                font-size: 1rem;
             }
-            @media print
-            {    
-                body {
-                    padding: 1em;
-                    font-size: 1em;
+            button {
+                font-size: 1rem;
+            }
+            p {
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+                margin-bottom: 1cm;
+            }
+            @page :first {
+                margin-top: 0;
+            }
+            @media print {
+                html, body {
+                    width: 21cm;
+                    height: 29.7cm;
                 }
-                .no-print, .no-print *
+                .no-print, .no-print
                 {
                     display: none !important;
                 }
             }
         </style>
     </head>
-    <body>
-        <p class="no-print" style="width:100%; background-color:080; text-align:right;">
-            <a href="/" style="font-size:0.6em;">Home</a> | 
-            <a href="/cheatsheetMdTeX" style="font-size:0.6em;">cheatsheetMdTeX</a> | 
-            <a href="/cheatsheetSvg" style="font-size:0.6em;">cheatsheetSvg</a>
-        </p>
+    <body id="body">
+        {{ nav }}
         {{ content }}
     </body>
 </html>
