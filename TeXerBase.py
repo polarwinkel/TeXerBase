@@ -33,7 +33,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         ''' The GET-Handler returns a certain exercise '''
-        if self.path.startswith('/img/'):
+        if self.path.startswith('/img/') or self.path.startswith('/static/'):
             self.sendStatic()
             return
         self._set_headers()
@@ -41,6 +41,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             basetemplate = Template(f.read())
         with open('template/nav.tpl') as f:
             nav = f.read()
+        relroot = ''
         
         # switch for the path:
         if self.path == '/':
@@ -60,6 +61,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 tmpl = Template(f.read())
             content = tmpl.render()
         elif self.path.startswith('/newExercise/'):
+            relroot = '../'
             topics = db.getTopics(self.path.strip('/newExercise/'))
             with open('template/newExercise.tpl') as f:
                 tmpl = Template(f.read())
@@ -67,17 +69,20 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         elif self.path == '/saveNewExercise':
             content = 'ERROR: expected POST, not GET on this path!'
         elif self.path.startswith('/viewExerciseList/'):
+            relroot = '../'
             sid = self.path.strip('/viewExerciseList/')
             exerlist = db.getExerciseList(sid)
             topics = db.getTopics(sid)
             content = getHtml.viewExerciseList(exerlist=exerlist, topics=topics)
         elif (self.path.startswith('/viewExercise/') 
                 and self.path.strip('/viewExercise/').isnumeric()):
+            relroot = '../'
             eid = self.path.strip('/viewExercise/')
             exercise = db.getExercise(eid)
             content = getHtml.viewExercise(exercise)
         elif (self.path.startswith('/editExercise/') 
                 and self.path.strip('/editExercise/').isnumeric()):
+            relroot = '../'
             eid = self.path.strip('/editExercise/')
             exercise = db.getExercise(eid)
             topics = db.getTopics()
@@ -86,6 +91,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 tmpl = Template(f.read())
             content = tmpl.render(exercise=exercise, topics=topics, licenses=licenses)
         elif self.path.startswith('/sheet/'):
+            relroot = '../'
             # Example: /sheet/Title;1,2,3;solutions
             # options: '', 'solutions' and 'source'
             # TODO: create a sepatate def for this, returning a "url-Builder"-page by default or if illeral url
@@ -101,7 +107,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             content += '<p>Your path: %s</p><br />\n' % self.path
         
         # Write content as utf-8 data
-        out = basetemplate.render(nav=nav, content=content)
+        out = basetemplate.render(relroot=relroot, nav=nav, content=content)
         self.wfile.write(bytes(out, "utf8"))
         return
     
@@ -130,7 +136,6 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 if self.path.endswith(".css"):
                     mimetype='text/css'
                     sendReply = True
-                f = open(self.path) 
             if sendReply == True:
                 #Open the static file requested and send it
                 fipath = (str(os.getcwd())+self.path)
