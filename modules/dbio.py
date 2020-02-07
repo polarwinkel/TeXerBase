@@ -139,7 +139,10 @@ class ExerDb:
     def getExercises(self, exes):
         ''' returns a list of exersizes from the database as dictionary '''
         cursor = self._connection.cursor()
-        sqlTemplate = '''SELECT * FROM exercises WHERE id IN {}'''.format(tuple(exes))
+        if (len(exes) == 1):
+            sqlTemplate = '''SELECT * FROM exercises WHERE id={}'''.format(exes[0])
+        else:
+            sqlTemplate = '''SELECT * FROM exercises WHERE id IN {}'''.format(tuple(exes))
         cursor.execute(sqlTemplate)
         result = cursor.fetchall()
         return result

@@ -90,15 +90,26 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             with open('template/editExercise.tpl') as f:
                 tmpl = Template(f.read())
             content = tmpl.render(exercise=exercise, topics=topics, licenses=licenses)
+        elif self.path.startswith('/sheetCreate/'):
+            relroot = '../'
+            sid = self.path.strip('/sheetCreate/')
+            exerlist = db.getExerciseList(sid)
+            topics = db.getTopics(sid)
+            with open('template/sheetCreate.tpl') as f:
+                tmpl = Template(f.read())
+            content = tmpl.render(exerlist=exerlist, topics=topics)
         elif self.path.startswith('/sheet/'):
             relroot = '../'
-            # Example: /sheet/Title;1,2,3;solutions
-            # options: '', 'solutions' and 'source'
-            # TODO: create a sepatate def for this, returning a "url-Builder"-page by default or if illeral url
             title = parse.unquote(self.path.strip('/sheet/').split(';')[0])
-            exes = self.path.strip('/sheet/').split(';')[1].split(',')
-            exes = list(map(int, exes))
-            exercises = db.getExercises(exes)
+            exeStrings = self.path.strip('/sheet/').split(';')[1].split(',')
+            exeInts = []
+            for item in exeStrings:
+                try:
+                    i = int(item)
+                    exeInts.append(i)
+                except:
+                    pass
+            exercises = db.getExercises(exeInts)
             option = self.path.strip('/sheet/').split(';')[2]
             content = getHtml.getSheet(title, exercises, option)
             #nav = ''

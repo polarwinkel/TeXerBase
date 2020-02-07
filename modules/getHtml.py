@@ -18,6 +18,9 @@ def getStart(subjects):
     result += '<h2>Aufgaben hinzufügen:</h2>\n'
     for sub in subjects:
         result += '<p><a href="newExercise/%s">%s</a></p>\n' % (sub[0], sub[1])
+    result += '<h2>Aufgabenblatt erstellen:</h2>\n'
+    for sub in subjects:
+        result += '<p><a href="sheetCreate/%s">%s</a></p>\n' % (sub[0], sub[1])
     return result
 
 def getTest():
@@ -67,28 +70,25 @@ def viewExercise(exercise):
     return result
 
 def getSheet(title, exercises, option):
-    '''
-        returns a sheet with the exercises
-        A given string 'solutions' or 'source' semicolon-separated at the end
-        will return according pages.
-    '''
+    ''' returns a sheet with exercises/solutions/source according to options '''
     result = '<h1>%s</h1>' % title
     i = 1
     if option=='exercises' or option=='':
         for ex in exercises:
-            result += '<h2>Aufgabe %s</h2>' % str(i)
+            result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex[1])
             result += mdTeX2html.convert(ex[4])
             i+=1
     elif option == 'solutions':
         for ex in exercises:
-            result += '<h2>Aufgabe %s</h2>' % str(i)
+            result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex[1])
             result += mdTeX2html.convert(ex[5])
             i+=1
     elif option == 'source':
-        result += '<code>'
         for ex in exercises:
+            result += '<pre>'
+            result += '# '+ex[1]+'<br />\n'
             result += ex[4]
-        result += '</code>'
+            result += '</pre><br />\n'
     else:
-        result = '<p style="color:red;">ERROR 404: Illegal URL.</p>'
+        result = '<p style="color:red;">ERROR 404: Illegal URL, I didn\'t understand your option!</p>'
     return result
