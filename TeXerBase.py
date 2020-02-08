@@ -17,8 +17,8 @@ from modules import dbio, mdTeX2html, getHtml
 
 # global settings:
 
-dbfile = "database.db"
-webServerPort = 8081
+dbfile = "texerbase.sqlite3"
+webServerPort = 8086
 
 # WebServer stuff:
 
