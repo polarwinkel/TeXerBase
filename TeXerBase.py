@@ -26,7 +26,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
     ''' HTTPRequestHandler class '''
     def _set_headers(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
     def do_HEAD(s):
         self._set_headers;
@@ -40,8 +40,8 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         with open('template/base.tpl') as f:
             basetemplate = Template(f.read())
         with open('template/nav.tpl') as f:
-            nav = f.read()
-        relroot = ''
+            nav = Template(f.read())
+        relroot = './'
         
         # switch for the path:
         if self.path == '/':
@@ -118,25 +118,24 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             content += '<p>Your path: %s</p><br />\n' % self.path
         
         # Write content as utf-8 data
-        out = basetemplate.render(relroot=relroot, nav=nav, content=content)
-        self.wfile.write(bytes(out, "utf8"))
+        out = basetemplate.render(relroot=relroot, nav=nav.render(relroot=relroot), content=content)
+        self.wfile.write(bytes(out, 'utf8'))
         return
     
     def sendStatic(self):
         '''send a static file from img or static-folder'''
         try:
-            #Check the file extension required and
-            #set the right mime type
+            #Check the file extension required and set the right mime type
             sendReply = False
             # Images:
             if self.path.startswith('/img/'):
                 if self.path.endswith(".jpg"):
                     mimetype='image/jpg'
                     sendReply = True
-                if self.path.endswith(".png"):
+                elif self.path.endswith(".png"):
                     mimetype='image/png'
                     sendReply = True
-                if self.path.endswith(".svg"):
+                elif self.path.endswith(".svg"):
                     mimetype='image/svg+xml'
                     sendReply = True
             # static files:
@@ -144,8 +143,11 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 if self.path.endswith(".js"):
                     mimetype='application/javascript'
                     sendReply = True
-                if self.path.endswith(".css"):
+                elif self.path.endswith(".css"):
                     mimetype='text/css'
+                    sendReply = True
+                elif self.path.endswith('.woff2'):
+                    mimetype = 'application/font-woff2'
                     sendReply = True
             if sendReply == True:
                 #Open the static file requested and send it
@@ -156,15 +158,20 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f.read())
                 f.close()
+            else:
+                self.send_error(501,'unsupported file type on path %s' % self.path)
             return
         except IOError:
             self.send_error(404,'File Not Found: %s' % self.path)
     
     def parse_POST(self):
         ctype, pdict = parse_header(self.headers['content-type'])
-        if ctype == 'multipart/form-data':
+        if ctype == 'application/json':
+            length = int(self.headers['content-length'])
+            postvars = json.loads(self.rfile.read(length).decode('utf-8'))
+        elif ctype == 'multipart/form-data':#TODO: remove: send all stuff as json
             postvars = parse_multipart(self.rfile, pdict)
-        elif ctype == 'application/x-www-form-urlencoded':
+        elif ctype == 'application/x-www-form-urlencoded':#TODO: remove: send all stuff as json
             length = int(self.headers['content-length'])
             postvars = parse.parse_qs(
                     self.rfile.read(length).decode('utf-8'), 
@@ -180,6 +187,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         ''' all operations on an exercise like editing is done via POST-Requests '''
         self._set_headers()
         postvars = self.parse_POST()
+        
         # path-switch, quick answer if just mdtex2html
         if self.path == '/mdtex2html':
             try:
@@ -190,7 +198,6 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             return
         elif self.path == '/saveNewExercise':
             result = db.insertExercise(postvars)
-        #else:
         elif self.path == '/saveExercise':
             result = db.editExercise(postvars)
         
@@ -198,6 +205,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             basetemplate = Template(f.read())
         with open('template/nav.tpl') as f:
             nav = f.read()
+        
         # Build the answer content:
         if result == 'exists':
             content = '<h1 style="color:red;">Fehler!</h1>\n'
