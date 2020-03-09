@@ -24,12 +24,13 @@
         <td>Aufzählung</td>
         <td>
             <ol>
-                <li>Punkt 1</li>
+                <li>Punkt 1<br/>zweizeilig</li>
                 <li>Punkt 2</li>
             </ol>
         </td>
         <td><pre><code>
             1. Punkt 1
+                zweizeilig
             1. Punkt 2
         </code></pre></td>
     </tr>

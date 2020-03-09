@@ -60,10 +60,10 @@ textarea {
     display: inline-block;
     float: left;
     font-size: 0.7rem;
-    width: 500px;
+    width: 100%;
     max-width:100%;
     min-width:250px;
-    height: 100px;
+    height: 200px;
 }
 /* other stuff */
 button {
