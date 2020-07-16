@@ -46,23 +46,23 @@ class ExerDb:
         # TODO: check integrity - here?
         cursor = self._connection.cursor()
         sqlTemplate = '''SELECT id FROM exercises WHERE title=?'''
-        cursor.execute(sqlTemplate, (e['title'][0], ))
+        cursor.execute(sqlTemplate, (e['title'], ))
         if cursor.fetchone():
-            return 'exists'
+            return 'ERROR: Title exists already. Choose a different one!'
         sqlTemplate = '''INSERT INTO exercises 
                 (title, topicId, difficulty, exercise, solution, origin, author, year, licenseId, comment, zOrder) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);'''
-        valuelist = (e['title'][0],
-                    e['topicId'][0],
-                    e['difficulty'][0],
-                    e['exercise'][0],
-                    e['solution'][0],
-                    e['origin'][0],
-                    e['author'][0],
-                    e['year'][0],
-                    e['licenseId'][0],
-                    e['comment'][0],
-                    e['zOrder'][0]
+        valuelist = (e['title'],
+                    e['topicId'],
+                    e['difficulty'],
+                    e['exercise'],
+                    e['solution'],
+                    e['origin'],
+                    e['author'],
+                    e['year'],
+                    e['licenseId'],
+                    e['comment'],
+                    e['zOrder']
                 )
         try:
             cursor.execute(sqlTemplate, valuelist)
@@ -70,7 +70,7 @@ class ExerDb:
             args = list(err.args)
             return 'FAILED: SQL-Error: '+str(args)
         self._connection.commit()
-        exerId = self.checkTitle(e['title'][0])
+        exerId = self.checkTitle(e['title'])
         if exerId >= 0:
             return exerId
         else:
@@ -83,22 +83,22 @@ class ExerDb:
         sqlTemplate = '''UPDATE exercises 
                 SET title=?, topicId=?, difficulty=?, exercise=?, solution=?, origin=?, author=?, year=?, licenseId=?, comment=?, zOrder=?
                 WHERE id=?;'''
-        valuelist = (e['title'][0],
-                    e['topicId'][0],
-                    e['difficulty'][0],
-                    e['exercise'][0],
-                    e['solution'][0],
-                    e['origin'][0],
-                    e['author'][0],
-                    e['year'][0],
-                    e['licenseId'][0],
-                    e['comment'][0],
-                    e['zOrder'][0],
-                    e['eid'][0]
+        valuelist = (e['title'],
+                    e['topicId'],
+                    e['difficulty'],
+                    e['exercise'],
+                    e['solution'],
+                    e['origin'],
+                    e['author'],
+                    e['year'],
+                    e['licenseId'],
+                    e['comment'],
+                    e['zOrder'],
+                    e['id']
                 )
         try:
             cursor.execute(sqlTemplate, valuelist)
-            result = e['eid'][0]
+            result = e['id']
         except sqlite3.OperationalError as err:
             args = list(err.args)
             result = 'FAILED: SQL-Error: '+str(args)
@@ -106,7 +106,7 @@ class ExerDb:
         return result
     
     def getExerciseList(self, sid='', tid='', searchword=''):
-        '''returns a List of exercises matching the filter criteria (all for no filters)'''
+        '''returns a List of exercises (as dict) matching the filter criteria (all for no filters)'''
         cursor = self._connection.cursor()
         if sid=='' and tid == '' and searchword == '':
             sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises ORDER BY zOrder'''
@@ -126,14 +126,41 @@ class ExerDb:
                     WHERE title LIKE '%?%' OR exercise LIKE '%?%' OR solution LIKE '%?%' OR comment LIKE '%?%'
                     ORDER BY zOrder'''
             cursor.execute(sqlTemplate, (searchword, searchword, searchword, searchword))
-        return cursor.fetchall()
+        tup = cursor.fetchall()
+        if tup is None:
+            return None
+        result = []
+        for t in tup:
+            result.append({
+                        'id'        : t[0],
+                        'title'     : t[1],
+                        'topicId'   : t[2],
+                        'difficulty': t[3]
+                    })
+        return result
     
     def getExercise(self, exId):
         ''' returns an exersize from the database as dictionary '''
         cursor = self._connection.cursor()
         sqlTemplate = '''SELECT * FROM exercises WHERE id=?'''
         cursor.execute(sqlTemplate, (exId, ))
-        result = cursor.fetchone()
+        tup = cursor.fetchone()
+        if tup is None:
+            return None
+        result = {
+                    'id'        : tup[0],
+                    'title'     : tup[1],
+                    'topicId'   : tup[2],
+                    'difficulty': tup[3],
+                    'exercise'  : tup[4],
+                    'solution'  : tup[5],
+                    'origin'    : tup[6],
+                    'author'    : tup[7],
+                    'year'      : tup[8],
+                    'licenseId' : tup[9],
+                    'comment'   : tup[10],
+                    'zOrder'    : tup[11]
+                }
         return result
     
     def getExercises(self, exes):
@@ -144,25 +171,52 @@ class ExerDb:
         else:
             sqlTemplate = '''SELECT * FROM exercises WHERE id IN {}'''.format(tuple(exes))
         cursor.execute(sqlTemplate)
-        result = cursor.fetchall()
+        tup = cursor.fetchall()
+        if tup is None:
+            return None
+        result = []
+        for t in tup:
+            result.append({
+                        'id'        : t[0],
+                        'title'     : t[1],
+                        'topicId'   : t[2],
+                        'difficulty': t[3],
+                        'exercise'  : t[4],
+                        'solution'  : t[5],
+                        'origin'    : t[6],
+                        'author'    : t[7],
+                        'year'      : t[8],
+                        'licenseId' : t[9],
+                        'comment'   : t[10],
+                        'zOrder'    : t[11]
+                    })
         return result
     
     def getSubjects(self):
-        '''returns a list of all subjects'''
+        '''returns a list of all subjects as dict'''
         cursor = self._connection.cursor()
         sqlTemplate = '''SELECT * FROM subjects'''
         cursor.execute(sqlTemplate, )
-        return cursor.fetchall()
+        tup = cursor.fetchall()
+        if tup is None:
+            return None
+        result = []
+        for t in tup:
+            result.append({
+                        'id'        : t[0],
+                        'subject'   : t[1]
+                    })
+        return result
     
     def getSubjectId(self, subject):
-        '''returns a list of all subjects'''
+        '''returns an id of a given subject'''
         cursor = self._connection.cursor()
         sqlTemplate = '''SELECT id FROM subjects WHERE subject=?'''
         cursor.execute(sqlTemplate, (subject, ))
         return cursor.fetchone()[0]
     
     def getTopics(self, sid=''):
-        '''returns a list of all topics for a subject'''
+        '''returns a list of all topics (as dict) for a subject'''
         cursor = self._connection.cursor()
         if sid == '':
             sqlTemplate = '''SELECT * FROM topics'''
@@ -170,12 +224,34 @@ class ExerDb:
         else:
             sqlTemplate = '''SELECT * FROM topics WHERE subjectId=?'''
             cursor.execute(sqlTemplate, (sid, ))
-        return cursor.fetchall()
+        tup = cursor.fetchall()
+        if tup is None:
+            return None
+        result = []
+        for t in tup:
+            result.append({
+                        'id'        : t[0],
+                        'subjectId' : t[1],
+                        'topic'     : t[2],
+                        'zOrder'    : t[3]
+                    })
+        return result
     
     def getLicenses(self):
-        '''returns a list of all subjects'''
+        '''returns a list of all licenses (as dict)'''
         cursor = self._connection.cursor()
         sqlTemplate = '''SELECT * FROM licenses'''
         cursor.execute(sqlTemplate, )
-        return cursor.fetchall()
+        tup = cursor.fetchall()
+        if tup is None:
+            return None
+        result = []
+        for t in tup:
+            result.append({
+                        'id'        : t[0],
+                        'name'      : t[1],
+                        'license'   : t[2],
+                        'url'       : t[3]
+                    })
+        return result
     

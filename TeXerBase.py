@@ -45,7 +45,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         
         # switch for the path:
         if self.path == '/':
-            content = getHtml.getStart(db.getSubjects())
+            content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())
         elif self.path == '/reloadDb':
             db.reloadDb(dbfile)
             content = '<p>Datenbank erfolgreich neu geladen!</p><br />\n'
@@ -60,42 +60,24 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             with open('template/cheatsheetMdTeX.tpl') as f:
                 tmpl = Template(f.read())
             content = tmpl.render()
-        elif self.path.startswith('/newExercise/'):
+        elif self.path.startswith('/exercise/'):
             relroot = '../'
-            topics = db.getTopics(self.path.strip('/newExercise/'))
-            with open('template/newExercise.tpl') as f:
+            if self.path.strip('/exercise/').isnumeric():
+                eid = self.path.strip('/exercise/')
+                e = db.getExercise(eid)
+            else:
+                e = {'id': '', 'title': '', 'topicId': '', 'difficulty': 0, 'exercise': '', 'solution': '', 'origin': '', 'author': '', 'year': '', 'licenseId': 0, 'comment': '', 'zOrder': 0}
+            eJson = json.dumps(e)
+            #content = getHtml.getExercise(e)
+            with open('template/exercise.tpl') as f:
                 tmpl = Template(f.read())
-            content = tmpl.render(topics=topics, licenses=db.getLicenses())
-        elif self.path == '/saveNewExercise':
-            content = 'ERROR: expected POST, not GET on this path!'
-        elif self.path.startswith('/viewExerciseList/'):
+            content = tmpl.render(e=e, eJson = eJson, relroot=relroot)
+        elif self.path.startswith('/sheetNew/'):
             relroot = '../'
-            sid = self.path.strip('/viewExerciseList/')
+            sid = self.path.strip('/sheetNew/')
             exerlist = db.getExerciseList(sid)
             topics = db.getTopics(sid)
-            content = getHtml.viewExerciseList(exerlist=exerlist, topics=topics)
-        elif (self.path.startswith('/viewExercise/') 
-                and self.path.strip('/viewExercise/').isnumeric()):
-            relroot = '../'
-            eid = self.path.strip('/viewExercise/')
-            exercise = db.getExercise(eid)
-            content = getHtml.viewExercise(exercise)
-        elif (self.path.startswith('/editExercise/') 
-                and self.path.strip('/editExercise/').isnumeric()):
-            relroot = '../'
-            eid = self.path.strip('/editExercise/')
-            exercise = db.getExercise(eid)
-            topics = db.getTopics()
-            licenses = db.getLicenses()
-            with open('template/editExercise.tpl') as f:
-                tmpl = Template(f.read())
-            content = tmpl.render(exercise=exercise, topics=topics, licenses=licenses)
-        elif self.path.startswith('/sheetCreate/'):
-            relroot = '../'
-            sid = self.path.strip('/sheetCreate/')
-            exerlist = db.getExerciseList(sid)
-            topics = db.getTopics(sid)
-            with open('template/sheetCreate.tpl') as f:
+            with open('template/sheetNew.tpl') as f:
                 tmpl = Template(f.read())
             content = tmpl.render(exerlist=exerlist, topics=topics)
         elif self.path.startswith('/sheet/'):
@@ -113,6 +95,8 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             option = self.path.strip('/sheet/').split(';')[2]
             content = getHtml.getSheet(title, exercises, option)
             #nav = ''
+        # TODO: einen /public-Teil, in den Sheets geeignet bereitgestellt werden können.
+        # TODO dazu: Speichermöglichkeit für sheets in der DB!
         else:
             content = 'ERROR 404: The path was not found by TeXerBase'
             content += '<p>Your path: %s</p><br />\n' % self.path
@@ -169,13 +153,6 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         if ctype == 'application/json':
             length = int(self.headers['content-length'])
             postvars = json.loads(self.rfile.read(length).decode('utf-8'))
-        elif ctype == 'multipart/form-data':#TODO: remove: send all stuff as json
-            postvars = parse_multipart(self.rfile, pdict)
-        elif ctype == 'application/x-www-form-urlencoded':#TODO: remove: send all stuff as json
-            length = int(self.headers['content-length'])
-            postvars = parse.parse_qs(
-                    self.rfile.read(length).decode('utf-8'), 
-                    keep_blank_values=1)
         elif ctype == 'application/mdtex':
             length = int(self.headers['content-length'])
             postvars = self.rfile.read(length).decode('utf-8')
@@ -188,40 +165,28 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         self._set_headers()
         postvars = self.parse_POST()
         
-        # path-switch, quick answer if just mdtex2html
+        # path-switch
         if self.path == '/mdtex2html':
             try:
                 result = mdTeX2html.convert(postvars)
             except Exception as e:
                 result = 'ERROR: Could not convert the mdTeX to HTML:' + str(e)
-            self.wfile.write(bytes(result, "utf8"))
-            return
-        elif self.path == '/saveNewExercise':
-            result = db.insertExercise(postvars)
+        elif self.path == '/getExerciseJson':
+            e = db.getExercise(postvars)
+            result = json.dumps(e)
+        elif self.path == '/getTopicsJson':
+            t = db.getTopics()
+            result = json.dumps(t)
+        elif self.path == '/getLicensesJson':
+            l = db.getLicenses()
+            result = json.dumps(l)
         elif self.path == '/saveExercise':
-            result = db.editExercise(postvars)
-        
-        with open('template/base.tpl') as f:
-            basetemplate = Template(f.read())
-        with open('template/nav.tpl') as f:
-            nav = f.read()
-        
-        # Build the answer content:
-        if result == 'exists':
-            content = '<h1 style="color:red;">Fehler!</h1>\n'
-            content += '<p>Der Titel der Aufgabe existiert schon.</p>\n'
-            content += '<p><a href="javascript:history.back()">Gehe zurück</a> oder bearbeite die existierende Aufgabe.</p>\n'
-        elif str(result).isdigit():
-            content = '<h1 style="color:green;">Erfolg!</h1>\n'
-            content += '<p>Die folgende Aufgabe wurde erfolgreich in die TeXerBase-Datenbank eingetragen:</p>\n'
-            content += '<h1>%s</h1>\n'%postvars['title'][0]
-            content += '<p>Aufgabe <a href="editExercise/%s">bearbeiten</a> oder <a href="viewExercise/%s">Anzeigen</a></p>' % (result, result)
-        else:
-            content = '<h1 style="color:red;">500: Server-error in POST-path!</h1>\n' + result
-        
-        # Write content as utf-8 data
-        out = basetemplate.render(nav=nav, content=content)
-        self.wfile.write(bytes(out, "utf8"))
+            print(postvars)
+            if postvars['id'] == '':
+                result = str(db.insertExercise(postvars))
+            elif postvars['id'].isnumeric():
+                result = db.editExercise(postvars)
+        self.wfile.write(bytes(result, "utf8"))
         return
 
 def runWebServer():
@@ -229,7 +194,7 @@ def runWebServer():
     print('starting server')
     server_address = ('127.0.0.1', webServerPort)
     httpd = HTTPServer(server_address, HTTPServer_RequestHandler)
-    print('server is running')
+    print('server is running on port ' + str(webServerPort))
     httpd.serve_forever()
 
 # get it started:

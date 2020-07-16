@@ -108,6 +108,7 @@ p {
         display: none !important;
     }
 }
+/* fonts */
 @font-face {
     font-family: "latin modern roman";
     src: url("lmroman10-regular.woff2") format('woff2');

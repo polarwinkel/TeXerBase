@@ -30,19 +30,19 @@ function buildUrl() {
 <p><a href="" id="sheetLink">zum Aufgabenblatt</a></p>
 <h2>Vorhandene Aufgaben</h2>
 {% for topic in topics %}
-    <h3>{{ topic[2] }}</h3>
+    <h3>{{ topic['topic'] }}</h3>
     <table>
         <tr>
             <th>Id</th>
             <th style="width:70%">Titel</th>
             <th>Schwierigkeit</th>
         </tr>
-        {% for item in exerlist %}
-            {% if item[2]==topic[0] %}
+        {% for exe in exerlist %}
+            {% if exe['topicId']==topic['id'] %}
                 <tr>
-                    <td><input type="checkbox" class="exerCheck" value="{{ item[0] }}" onchange="buildUrl()" />{{ item[0] }}</td>
-                    <td><a href="../viewExercise/{{ item[0] }}">{{ item[1] }}</a></td>
-                    <td>{{ item[3] }}</td>
+                    <td><input type="checkbox" class="exerCheck" value="{{ exe['id'] }}" onchange="buildUrl()" />{{ exe['id'] }}</td>
+                    <td><a href="../viewExercise/{{ exe['id'] }}">{{ exe['title'] }}</a></td>
+                    <td>{{ exe['difficulty'] }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
