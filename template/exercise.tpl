@@ -47,8 +47,8 @@
         html += '<label>Thema: </label><select type="text" id="topicId" name="topicId" class="formdata">\n';
         html += '</select><br />\n';
         loadTopics(eJson.topicId);
-        html += '<label for="difficulty">Schwierigkeitsgrad: </label>';
-        html += '<input type="range" id="difficulty" name="difficulty" class="formdata" min="0" max="4" value="'+eJson.difficulty+'"><br />\n';
+        html += '<label for="difficulty" id="labelDifficulty">Schwierigkeitsgrad: </label>';
+        html += '<input type="range" id="difficulty" name="difficulty" class="formdata" min="0" max="3" value="'+eJson.difficulty+'" oninput="styleDifficulty(this.value)"><br />\n';
         html += 'Aufgabe im mdTeX-Format:<br />\n';
         html += '<textarea name="exercise" id="exercise" class="formdata" rows="20" cols="72">'+eJson.exercise+'</textarea><br />\n';
         html += '<button type="button" onclick="preview(\'exercise\')">Vorschau</button>\n';
@@ -149,6 +149,17 @@
                     window.location = '{{ relroot }}exercise/'+xhr.responseText;
                 }
             }
+        }
+    }
+    function styleDifficulty(n) {
+        if (n==0) {
+            document.getElementById('labelDifficulty').style.background = 'blue';
+        } else if (n==1) {
+            document.getElementById('labelDifficulty').style.background = 'green';
+        } else if (n==2) {
+            document.getElementById('labelDifficulty').style.background = 'yellow';
+        } else if (n==3) {
+            document.getElementById('labelDifficulty').style.background = 'red';
         }
     }
     if (eJson.id == '') {
