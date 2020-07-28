@@ -15,7 +15,7 @@ function buildUrl() {
             exercises = exercises+exerChecks[i].value+',';
         }
     }
-    url = '/sheet/' + title + ';'+ exercises+';'+type+';';
+    url = '../sheet/' + title + ';'+ exercises+';'+type+';';
     document.getElementById('sheetUrl').value = url;
     document.getElementById('sheetLink').href = url;
 }

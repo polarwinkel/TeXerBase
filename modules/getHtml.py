@@ -24,7 +24,7 @@ def getStart(subjects, topics, exerciseList):
                 result += getExerciseTable(exerciseList, topic)
                 result += '</details>'
         result += '</details>'
-    result += '<p><a href="exercise/">Neue Aufgabe erstellen</a></p>'
+    result += '<p><a href="./exercise/">Neue Aufgabe erstellen</a></p>'
     result += '<h2>Aufgabenblatt erstellen:</h2>\n'
     for sub in subjects:
         result += '<p><a href="sheetNew/%s">%s</a></p>\n' % (sub['id'], sub['subject'])
@@ -39,7 +39,7 @@ def getExerciseTable(exerciseList, topic):
     for exe in exerciseList:
         if exe['topicId']==topic['id']:
             result += '<tr>\n'
-            result += '<td><a href="../exercise/%s">' % exe['id'] + exe['title'] + '</a></td>\n'
+            result += '<td><a href="./exercise/%s">' % exe['id'] + exe['title'] + '</a></td>\n'
             result += '<td>' + str(exe['difficulty']) + '</td>\n'
             result += '</tr>\n'
     result += '</table>\n'
