@@ -8,7 +8,7 @@ html {
     background-color: #040;
     font-family: "latin modern roman", Garamond, Georgia, "Times New Roman", Times, sans-serif;
     color: black;
-    font-size: 1.6em;
+    font-size: 1.2em;
 }
 body {
     max-width: 60rem;
@@ -46,15 +46,12 @@ label{
 }
 input {
     font-size: 1rem;
-/*    width: 500px;*/
     max-width:100%;
-/*    min-width:250px;*/
 }
 select {
     font-size: 1rem;
     width: 500px;
     max-width:100%;
-/*    min-width:250px;*/
 }
 textarea {
     display: inline-block;
@@ -74,14 +71,29 @@ button {
 p {
     page-break-inside: avoid;
 }
-/*@font-face {
-  font-family: "latin modern roman";
-  src: url(sansation_light.woff);
-}*/
+div.border {
+    border: 1px solid silver;
+}
+select.selectSmall {
+    width: auto;
+}
+input.inputSmall {
+    width: 5rem;
+}
+p.date{
+    font-size: 0.7rem;
+    text-align: right;
+    padding: 0;
+    margin: 0;
+}
+table {
+    background-color: #fff;
+}
 /* for desktops */
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 981px) {
     html {
         margin: 1em;
+        font-size: 1.6em;
     }
     body {
         padding: 4em;
@@ -160,6 +172,9 @@ p {
         border: 1px solid black;
     }
     a {
-        color:#090;
+        color:#4f4;
+    }
+    table {
+        background-color: #222;
     }
 }

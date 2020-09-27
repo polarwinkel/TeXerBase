@@ -52,12 +52,12 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         elif self.path == '/test':
             content = '<p>Dein Pfad: %s</p><br />\n' % self.path
             content += getHtml.getTest()
-        elif self.path == '/cheatsheetSvg':
-            with open('template/cheatsheetSvg.tpl') as f:
+        elif self.path == '/svgCheatsheet':
+            with open('template/svgCheatsheet.tpl') as f:
                 tmpl = Template(f.read())
             content = tmpl.render()
-        elif self.path == '/cheatsheetMdTeX':
-            with open('template/cheatsheetMdTeX.tpl') as f:
+        elif self.path == '/mdTeXCheatsheet':
+            with open('template/mdTeXCheatsheet.tpl') as f:
                 tmpl = Template(f.read())
             content = tmpl.render()
         elif self.path.startswith('/exercise/'):
