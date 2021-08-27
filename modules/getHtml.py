@@ -8,7 +8,7 @@ see those if you don't find it here.
 The output language is german.
 '''
 
-from modules import mdTeX2html
+import mdtex2mathml as mdTeX2html
 from jinja2 import Template
 
 def getStart(subjects, topics, exerciseList):
