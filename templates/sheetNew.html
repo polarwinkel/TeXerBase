@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <script>
 function buildUrl() {
     var title = document.getElementById('title').value;
@@ -41,10 +44,11 @@ function buildUrl() {
             {% if exe['topicId']==topic['id'] %}
                 <tr>
                     <td><input type="checkbox" class="exerCheck" value="{{ exe['id'] }}" onchange="buildUrl()" />{{ exe['id'] }}</td>
-                    <td><a href="../viewExercise/{{ exe['id'] }}">{{ exe['title'] }}</a></td>
+                    <td><a href="../exercise/{{ exe['id'] }}">{{ exe['title'] }}</a></td>
                     <td>{{ exe['difficulty'] }}</td>
                 </tr>
             {% endif %}
         {% endfor %}
     </table>
 {% endfor %}
+{% endblock %}

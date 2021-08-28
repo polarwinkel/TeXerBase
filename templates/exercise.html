@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
 {% if e['id'] == '' %}
     <h1 id="title">Neue Aufgabe</h1></h1>
 {% else %}
@@ -8,7 +11,7 @@
 
 <script src="{{ relroot }}static/getFormJson.js"></script> 
 <script>
-    var eJson = {{ eJson }};
+    var eJson = {{ eJson|safe }};
     function mdtex2html(mdtex, element) {
         // gets html for a given mdTeX from the server and outputs in in the 'element' when received
         var xhr = new XMLHttpRequest();
@@ -168,3 +171,4 @@
         show(eJson);
     }
 </script>
+{% endblock %}

@@ -8,13 +8,13 @@ see those if you don't find it here.
 The output language is german.
 '''
 
-import mdtex2mathml as mdTeX2html
+import mdtex2html
 from jinja2 import Template
 
 def getStart(subjects, topics, exerciseList):
     '''returns the html for the startpage'''
     result = '<h1>TeXerBase Aufgabendatenbank</h1>\n'
-    result = '<h2>Vorhandene Aufgaben:</h2>\n'
+    result += '<h2>Vorhandene Aufgaben:</h2>\n'
     for sub in subjects:
         #result += '<p><a href="viewExerciseList/%s">%s</a></p>\n' % (sub['id'], sub['subject'])
         result += '<details><summary style="font-size:1.4em; font-weight: bold;">%s</summary><ul>\n' % sub['subject']
@@ -45,23 +45,6 @@ def getExerciseTable(exerciseList, topic):
     result += '</table>\n'
     return result
 
-def getExercise(exercise):
-    '''returns an html-representation of an exercise'''
-    result = '<h1>%s</h1>\n' % exercise['title']
-    result += mdTeX2html.convert(exercise['exercise'])
-    if exercise['solution'] != '':
-        result += '<hr />\n'
-        result += '<h1>Lösung</h1>\n'
-        result += mdTeX2html.convert(exercise['solution'])
-    if exercise['origin'] != '':
-        result += '<p style="text-align:right;">Quelle: %s</p>\n' % exercise['origin']
-    if exercise['comment'] != '':
-        result += '<hr />\n'
-        result += '<h2>Bemerkungen</h2>\n'
-        result += mdTeX2html.convert(exercise['comment'])
-    result += '<p style="text-align:right;" class="no-print"><a href="../exerciseEdit/%s">Aufgabe bearbeiten</a></p>\n' % exercise['id']
-    return result
-
 def getSheet(title, exercises, option):
     ''' returns a sheet with exercises/solutions/source according to options '''
     result = '<h1>%s</h1>' % title
@@ -69,12 +52,16 @@ def getSheet(title, exercises, option):
     if option=='exercises' or option=='':
         for ex in exercises:
             result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex['title'])
-            result += mdTeX2html.convert(ex['exercise'])
+            result += mdtex2html.convert(ex['exercise'])
             i+=1
     elif option == 'solutions':
         for ex in exercises:
             result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex['title'])
-            result += mdTeX2html.convert(ex[5])
+            solution = mdtex2html.convert(ex['solution'])
+            if solution == '':
+                result += '[keine Lösung vorhanden]'
+            else:
+                result += solution
             i+=1
     elif option == 'source':
         for ex in exercises:
@@ -90,7 +77,7 @@ def getTest():
     '''returns a Testpage, rendered from the test.mdtex in test folder'''
     with open('test/test.mdtex', 'r') as f:
         mdtex = f.read()
-    result = mdTeX2html.convert(mdtex)
+    result = mdtex2html.convert(mdtex)
     result += '<br>\n'
     result += 'Webrequest-Test:<br>\n'
     result += '<div id="requestbox">Ursprünglicher Requestbox-Testinhalt</div>\n'
