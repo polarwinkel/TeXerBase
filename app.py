@@ -19,7 +19,7 @@ from modules import dbio, getHtml
 dbfile = "texerbase.sqlite3"
 host = '0.0.0.0'
 debug = 'true'
-extensions = '' #TODO: insert list of allowed extensions
+extensions = ['def_list', 'fenced_code', 'md_in_html', 'tables', 'admonition', 'nl2br', 'sane_lists', 'toc'] #TODO: insert list of allowed extensions
 
 # WebServer stuff:
 
