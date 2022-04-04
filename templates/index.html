@@ -2,6 +2,30 @@
 
 {% block content %}
 
+<script>
+function loadExercise(eid) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{{ relroot }}getExerciseHtml');
+    xhr.setRequestHeader("Content-Type", "text/text");
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
+        exer = xhr.responseText;
+        var etr = document.getElementById('etr'+eid);
+        etr.cells[0].innerHTML = '<a onclick="unloadExercise('+eid+')">-</a>';
+        etr.cells[1].innerHTML += '<hr>' + exer;
+    }}
+    }
+    xhr.send(eid);
+}
+function unloadExercise(eid) {
+    var etr = document.getElementById('etr'+eid);
+    etr.cells[0].innerHTML = '<a onclick="loadExercise('+eid+')">+</a>';
+    var pos = etr.cells[1].innerHTML.search('<hr>');
+    etr.cells[1].innerHTML = etr.cells[1].innerHTML.substring(0,pos-1);
+}
+</script>
+
 {{ content|safe }}
 
 {% endblock %}

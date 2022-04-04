@@ -132,6 +132,14 @@ def post_mdtex2html():
     except Exception as e:
         return 'ERROR: Could not convert the mdTeX to HTML:' + str(e)
 
+@app.route('/getExerciseHtml', methods=['POST'])
+def post_getExerciseHtml():
+    db = dbio.ExerDb(dbfile)
+    postvars = request.data
+    e = db.getExercise(postvars.decode("utf-8"))
+    exer = mdtex2html.convert(e['exercise'], extensions)
+    return exer
+
 @app.route('/getExerciseJson', methods=['POST'])
 def post_getExerciseJson():
     db = dbio.ExerDb(dbfile)

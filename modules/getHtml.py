@@ -33,12 +33,14 @@ def getStart(subjects, topics, exerciseList):
 def getExerciseTable(exerciseList, topic):
     ''' returns an overview of exercises for a topic'''
     result = '<table><tr>\n'
+    result += '<th style="width:1em;"></th>'
     result += '<th style="width:80%">Titel</th>\n'
     result += '<th>Schwierigkeit</th>\n'
     result += '</tr>\n'
     for exe in exerciseList:
         if exe['topicId']==topic['id']:
-            result += '<tr>\n'
+            result += '<tr id="etr'+str(exe['id'])+'">\n'
+            result += '<td style="vertical-align: top;"><a onclick="loadExercise('+str(exe['id'])+')">+</a></td>\n'
             result += '<td><a href="./exercise/%s">' % exe['id'] + exe['title'] + '</a></td>\n'
             result += '<td>' + str(exe['difficulty']) + '</td>\n'
             result += '</tr>\n'
