@@ -10,8 +10,9 @@
     </div>
 
 <script src="{{ relroot }}static/getFormJson.js"></script> 
+<script src="{{ relroot }}static/plotLine.js"></script> 
 <script>
-    var eJson = {{ eJson|safe }};
+    var eJson = JSON.parse({{ eJson|tojson }});
     function mdtex2html(mdtex, element) {
         // gets html for a given mdTeX from the server and outputs in in the 'element' when received
         var xhr = new XMLHttpRequest();
@@ -21,6 +22,17 @@
         xhr.onreadystatechange = function() {
             html = xhr.responseText;
             document.getElementById(element).innerHTML = html;
+            runInnerHtmlJs(document.getElementById(element));
+        }
+    }
+    function runInnerHtmlJs(element) {
+        elements = element.querySelectorAll('script');
+        for (var i=0; i<elements.length; i++) {
+            var oldScript = elements[i];
+            var newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach( attr => newScript.setAttribute(attr.name, attr.value) );
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
         }
     }
     function show(eJson) {

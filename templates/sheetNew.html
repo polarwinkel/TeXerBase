@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script src="{{ relroot }}static/plotLine.js"></script> 
 <script>
 function buildUrl() {
     var title = document.getElementById('title').value;
@@ -22,6 +23,16 @@ function buildUrl() {
     document.getElementById('sheetUrl').value = url;
     document.getElementById('sheetLink').href = url;
 }
+function runInnerHtmlJs(element) {
+    elements = element.querySelectorAll('script');
+    for (var i=0; i<elements.length; i++) {
+        var oldScript = elements[i];
+        var newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach( attr => newScript.setAttribute(attr.name, attr.value) );
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+    }
+}
 function loadExercise(eid) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '{{ relroot }}getExerciseHtml');
@@ -29,11 +40,13 @@ function loadExercise(eid) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
-        exer = xhr.responseText;
-        var etr = document.getElementById('etr'+eid);
-        etr.cells[1].innerHTML = '<a onclick="unloadExercise('+eid+')">-</a>';
-        etr.cells[2].innerHTML += '<hr>' + exer;
-    }}
+                exer = xhr.responseText;
+                var etr = document.getElementById('etr'+eid);
+                etr.cells[1].innerHTML = '<a onclick="unloadExercise('+eid+')">-</a>';
+                etr.cells[2].innerHTML += '<hr>' + exer;
+                runInnerHtmlJs(etr.cells[2]);
+            }
+        }
     }
     xhr.send(eid);
 }
@@ -66,7 +79,7 @@ function unloadExercise(eid) {
             {% if exe['topicId']==topic['id'] %}
                 <tr id="etr{{ exe['id'] }}">
                     <td><input type="checkbox" class="exerCheck" value="{{ exe['id'] }}" onchange="buildUrl()" />{{ exe['id'] }}</td>
-                    <td style="vertical-align: top;"><a onclick="loadExercise({{ exe['id'] }})">+</a></td>\n'
+                    <td style="vertical-align: top;"><a onclick="loadExercise({{ exe['id'] }})">+</a></td>
                     <td><a href="../exercise/{{ exe['id'] }}">{{ exe['title'] }}</a></td>
                     <td>{{ exe['difficulty'] }}</td>
                 </tr>
