@@ -7,7 +7,7 @@ Base file of TeXerBase - a Database Server for Exercises
 import os
 import sqlite3
 from flask import Flask, render_template, request, send_from_directory, make_response, jsonify
-import json
+import json, string
 from jinja2 import Template
 from multiprocessing import Process
 import mdtex2html
@@ -20,6 +20,7 @@ dbfile = "texerbase.sqlite3"
 host = '0.0.0.0'
 debug = 'true'
 extensions = ['def_list', 'fenced_code', 'md_in_html', 'tables', 'admonition', 'nl2br', 'sane_lists', 'toc'] #TODO: insert list of allowed extensions
+imgFolder = 'images'
 
 # WebServer stuff:
 
@@ -31,7 +32,7 @@ def sendStatic(path):
 
 @app.route('/img/<path:path>', methods=['GET'])
 def sendImg(path):
-    return send_from_directory('img/', path)
+    return send_from_directory('images/', path)
     
 @app.route('/', methods=['GET'])
 def index():
@@ -103,6 +104,30 @@ def sendSheetNew(sid):
     exerlist = db.getExerciseList(sid)
     topics = db.getTopics(sid)
     return render_template('sheetNew.html', relroot=relroot, exerlist=exerlist, topics=topics)
+
+@app.route('/images', methods=['GET'])
+def imgages():
+    files = os.listdir(imgFolder)
+    #print(json.dumps(files, indent=4, sort_keys=True)) # show files-dict for debugging and reference
+    images = json.dumps(files)
+    return render_template('images.html', relroot='../', images=images)
+
+@app.route('/imgUpload/', methods=['GET'])
+def imgUpload():
+    return render_template('imgUpload.html', relroot='../')
+@app.route('/imgUpload/<path:fname>', methods=['POST'])
+def imgUploadPost(fname):
+    safechars = string.ascii_lowercase + string.ascii_uppercase + string.digits + '.-_'
+    fname = ''.join([c for c in fname if c in safechars])
+    meta = False
+    filepath = os.path.join(imgFolder, fname)
+    if os.path.isfile(filepath):
+        return 'ERROR 409: file exists!'
+    else:
+        uploadFile = request.files['file']
+        uploadFile.filename == fname
+        uploadFile.save(filepath)
+        return filepath
 
 @app.route('/sheet/<string:sheet>', methods=['GET'])
 def sendSheet(sheet):

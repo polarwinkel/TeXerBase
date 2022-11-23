@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav id="pagenav">
+</nav>
+<div id="content">
+<h1>Images</h1>
+<div id="images">
+</div>
+</div>
+
+<script>
+    var relroot = '{{ relroot }}';
+    var images = JSON.parse('{{ images|safe }}');
+    
+    var out='';
+    for (var i=0; i<images.length; i++) {
+        out += '<figure style="max-width:250px; max-height:200px; float:left;">';
+        out += '<img src="'+relroot+'img/'+images[i]+'" alt="image" />';
+        out += '<figcaption><a href="'+relroot+'img/'+images[i]+'">'+images[i]+'</a></figcaption>';
+        out += '</figure>';
+    }
+    out += '<br style="clear:both;">';
+    document.getElementById('images').innerHTML = out;
+</script>
+{% endblock %}
+

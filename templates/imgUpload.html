@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<code>{{ path }}</code>
+<nav id="pagenav">
+</nav>
+<div id="content">
+<h1>Image Upload</h1>
+<p>Upload a file either from local storage or from a URL!</p>
+<h2>File Upload</h2>
+<div style="clear:both;"><input type="file" id="file" name="file" onchange="changeFile()"/></div>
+<h2>URL Upload</h2>
+<div style="clear:both;" id="imgUrlOption">
+    <p>Image-URL:</p><input type="text" id="imgUrl" style="width:100%" />
+    <button onclick="imgUrlUpload()">Load Image</button>
+    <img id="imgUrlUpload" src="#" alt="[preview uploaded image]" />
+</div>
+<h2>optional: filename</h2>
+<div style="clear:both;" id="name"><h3>Name with filetype: </h3><input type="text" id="fname"></div>
+<hr />
+<div style="clear:both;"><input type="submit" value="Save" onclick="save()"></div>
+<p><i>(existing files will not be replaced)</i></p>
+</div>
+
+<script>
+    var path = '{{ path }}';
+    var relroot = '{{ relroot }}';
+    var uploadUrl = relroot+'imgUpload/';
+    var imgUrlFile;
+    
+    function changeFile() {
+        document.getElementById('imgUrl').value='';
+        document.getElementById('imgUrlUpload').src='';
+    }
+    
+    function imgUrlUpload() {
+        var url = document.getElementById('imgUrl').value;
+        var imgPreview = document.getElementById('imgUrlUpload');
+        var xhr = new XMLHttpRequest();
+        document.getElementById('file').value = '';
+        xhr.onload = function() {
+            //var reader = new FileReader();
+            //var img = reader.readAsDataURL(xhr.response);
+            var img = xhr.response;
+            var filename = url.split('/').pop()
+            imgUrlFile = new File([xhr.response], filename, {type: img.type,});
+            imgPreview.src = url;
+        };
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.send();
+    }
+    
+    async function save() {
+        var name = document.getElementById('name').value; // TODO: Check if valid filename (compare to python-implementation)
+        var formData = new FormData();
+        // storage or url:
+        if (document.getElementById('file').value != '') {
+            formData.append('file', document.getElementById('file').files[0]);
+            var fname = document.getElementById('file').files[0].name;
+        }
+        else if (typeof(imgUrlFile) == 'object') {
+            formData.append('file', imgUrlFile);
+        } else {
+            alert('no file given!');
+            return;
+        }
+        // set filename:
+        if (document.getElementById('fname').value != '') {
+            var fname = document.getElementById('fname').value;
+        }
+        if (fname == '' || typeof(fname) == 'undefined') {
+            alert('no filename set!');
+            return;
+        }
+        formData.append('name', fname);
+        const response = await fetch(uploadUrl+fname, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            body: formData
+        });
+        response.text().then(function (text) {
+            alert(response.statusText);
+        });
+    }    
+</script>
+{% endblock %}
+
