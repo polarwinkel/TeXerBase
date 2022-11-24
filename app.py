@@ -11,6 +11,7 @@ import json, string
 from jinja2 import Template
 from multiprocessing import Process
 import mdtex2html
+from datetime import date
 
 from modules import dbio, getHtml
 
@@ -94,7 +95,7 @@ def sendNewExercise():
     '''show exercise'''
     relroot = '../'
     db = dbio.ExerDb(dbfile)
-    e = {'id': '', 'title': '', 'topicId': '', 'difficulty': 0, 'exercise': '', 'solution': '', 'origin': '', 'author': '', 'year': '', 'licenseId': 0, 'comment': '', 'zOrder': 0}
+    e = {'id': '', 'title': '', 'topicId': '', 'difficulty': 0, 'exercise': '', 'solution': '', 'origin': 'self', 'author': '', 'year': str(date.today().year), 'licenseId': 2, 'comment': '', 'zOrder': 0}
     eJson = json.dumps(e)
     return render_template('exercise.html', relroot=relroot, e=e, eJson = eJson)
 
