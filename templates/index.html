@@ -40,8 +40,8 @@ function loadExercise(eid) {
                 exer = xhr.responseText;
                 var etr = document.getElementById('etr'+eid);
                 etr.cells[0].innerHTML = '<a onclick="unloadExercise('+eid+')">-</a>';
-                etr.cells[1].innerHTML += '<hr>' + exer;
-                runInnerHtmlJs(etr.cells[1]);
+                etr.cells[2].innerHTML += '<hr>' + exer;
+                runInnerHtmlJs(etr.cells[2]);
             }
         }
     }
@@ -50,8 +50,8 @@ function loadExercise(eid) {
 function unloadExercise(eid) {
     var etr = document.getElementById('etr'+eid);
     etr.cells[0].innerHTML = '<a onclick="loadExercise('+eid+')">+</a>';
-    var pos = etr.cells[1].innerHTML.search('<hr>');
-    etr.cells[1].innerHTML = etr.cells[1].innerHTML.substring(0,pos-1);
+    var pos = etr.cells[2].innerHTML.search('<hr>');
+    etr.cells[2].innerHTML = etr.cells[2].innerHTML.substring(0,pos-1);
 }
 </script>
 
