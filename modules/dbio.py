@@ -115,7 +115,12 @@ class ExerDb:
             sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
                     WHERE topicId IN (SELECT id FROM topics WHERE subjectId=?)
                     ORDER BY zOrder'''
-            cursor.execute(sqlTemplate, (sid, ))
+            cursor.execute(sqlTemplate, (tid, ))
+        elif sid == '' and searchword == '':
+            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
+                    WHERE topicId =?
+                    ORDER BY zOrder'''
+            cursor.execute(sqlTemplate, (tid, ))
         elif searchword == '':
             sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
                     WHERE topicId=?
@@ -215,6 +220,22 @@ class ExerDb:
         cursor.execute(sqlTemplate, (subject, ))
         return cursor.fetchone()[0]
     
+    def getTopic(self, tid):
+        '''returns a topic (as dict) from an id'''
+        cursor = self._connection.cursor()
+        sqlTemplate = '''SELECT * FROM topics WHERE id=?'''
+        cursor.execute(sqlTemplate, (tid, ))
+        t = cursor.fetchone()
+        if t is None:
+            return None
+        result = {
+                    'id'        : t[0],
+                    'subjectId' : t[1],
+                    'topic'     : t[2],
+                    'zOrder'    : t[3]
+                }
+        return result
+    
     def getTopics(self, sid=''):
         '''returns a list of all topics (as dict) for a subject'''
         cursor = self._connection.cursor()
@@ -236,6 +257,41 @@ class ExerDb:
                         'zOrder'    : t[3]
                     })
         return result
+    
+    def exerZMove(self, tid, eid, direction):
+        '''move an exercise in zIndex up or down'''
+        cursor = self._connection.cursor()
+        sqlTemplate = '''SELECT id, zOrder FROM exercises WHERE topicId=? ORDER BY zOrder'''
+        cursor.execute(sqlTemplate, (tid, ))
+        exes = cursor.fetchall()
+        for i in range(0,len(exes)):
+            if exes[i][0] == eid:
+                exe = exes[i]
+                if i+direction >= 0:
+                    try:
+                        partner = exes[i+direction]
+                    except IndexError:
+                        return
+                else:
+                    return
+        sqlTemplate = '''UPDATE exercises SET zOrder=? WHERE id=?'''
+        cursor.execute(sqlTemplate, (partner[1], exe[0]))
+        cursor.execute(sqlTemplate, (exe[1], partner[0]))
+        self._connection.commit()
+    
+    def topicZIndexNormalize(self, tid):
+        '''evenly spread zIndex for all exercises in a topic'''
+        cursor = self._connection.cursor()
+        sqlTemplate = '''SELECT id FROM exercises WHERE topicId=? ORDER BY zOrder'''
+        cursor.execute(sqlTemplate, (tid, ))
+        eids = cursor.fetchall()
+        step = 10000 // (len(eids)+1)
+        z = step
+        sqlTemplate = '''UPDATE exercises SET zOrder=? WHERE id=?'''
+        for eid in eids:
+            cursor.execute(sqlTemplate, (z, eid[0]))
+            z = z+step
+        self._connection.commit()
     
     def getLicenses(self):
         '''returns a list of all licenses (as dict)'''

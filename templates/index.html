@@ -4,6 +4,22 @@
 
 <script src="{{ relroot }}static/plotLine.min.js"></script> 
 <script>
+function move(tid, eid, direction, elem) {
+    var ttable = elem.parentNode.parentNode.parentNode.parentNode;
+    var xhr = new XMLHttpRequest();
+    xhr.open('PATCH', '{{ relroot }}changeZ');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
+                res = xhr.responseText;
+                ttable.innerHTML = res;
+            }
+        }
+    }
+    job = {'tid': tid, 'eid': eid, 'direction': direction};
+    xhr.send(JSON.stringify(job));
+}
 function runInnerHtmlJs(element) {
     elements = element.querySelectorAll('script');
     for (var i=0; i<elements.length; i++) {

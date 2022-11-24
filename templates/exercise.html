@@ -83,7 +83,7 @@
         html += '<button type="button" onclick="preview(\'comment\')">Vorschau</button>\n';
         html += '<div id="previewcomment"></div>\n';
         html += '<label for="zOrder">zIndex (Sortierung): </label>\n';
-        html += '<input type="range" id="zOrder" name="zOrder" class="formdata" min="0" max="1000" value="'+eJson.zOrder+'"><br />\n';
+        html += '<input type="range" id="zOrder" name="zOrder" class="formdata" min="0" max="10000" value="'+eJson.zOrder+'"><br />\n';
         html += '<button type="button" onclick="save()">Speichern</button>\n';
         document.getElementById('content').innerHTML = html;
     }

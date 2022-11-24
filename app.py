@@ -43,12 +43,26 @@ def index():
     content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())
     return render_template('index.html', relroot=relroot, content=content)
 
+@app.route('/changeZ', methods=['PATCH'])
+def patch_changeZ():
+    '''change zOrder of an exercise'''
+    pv = request.json
+    #print(pv)
+    db = dbio.ExerDb(dbfile)
+    db.exerZMove(pv['tid'], pv['eid'], pv['direction'])
+    topic = db.getTopic(pv['tid'])
+    exerciseList = db.getExerciseList('', topic['id'])
+    result = getHtml.getExerciseTable(exerciseList, topic)
+    #content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())
+    return result
+
 @app.route('/reloadDb', methods=['GET'])
 def reloadDb():
     '''reload database'''
     relroot = './'
     db = dbio.ExerDb(dbfile)
     db.reloadDb(dbfile)
+    db.topicZIndexNormalize(1)
     content = '<p>Datenbank erfolgreich neu geladen!</p><br />\n'
     return render_template('index.html', relroot=relroot, content=content)
 
