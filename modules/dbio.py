@@ -240,10 +240,15 @@ class ExerDb:
         '''returns a list of all topics (as dict) for a subject'''
         cursor = self._connection.cursor()
         if sid == '':
-            sqlTemplate = '''SELECT * FROM topics'''
+            sqlTemplate = '''
+                    SELECT topics.id, subjectId, topic, zOrder, subject 
+                    FROM topics JOIN subjects ON topics.subjectId=subjects.id'''
             cursor.execute(sqlTemplate)
         else:
-            sqlTemplate = '''SELECT * FROM topics WHERE subjectId=?'''
+            sqlTemplate = '''
+                    SELECT topics.id, subjectId, topic, zOrder, subject 
+                    FROM topics JOIN subjects ON topics.subjectId=subjects.id
+                    WHERE subjectId=?'''
             cursor.execute(sqlTemplate, (sid, ))
         tup = cursor.fetchall()
         if tup is None:
@@ -254,7 +259,8 @@ class ExerDb:
                         'id'        : t[0],
                         'subjectId' : t[1],
                         'topic'     : t[2],
-                        'zOrder'    : t[3]
+                        'zOrder'    : t[3],
+                        'subject'   : t[4]
                     })
         return result
     

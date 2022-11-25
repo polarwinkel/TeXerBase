@@ -59,9 +59,7 @@
     function edit() {
         html = '<input type="hidden" name="id" class="formdata" value="'+eJson.id+'">\n';
         html += '<label>Titel: </label><input type="text" name="title" class="formdata" value="'+eJson.title+'" /><br />\n';
-        html += '<label>Thema: </label><select type="text" id="topicId" name="topicId" class="formdata">\n';
-        html += '</select><br />\n';
-        loadTopics(eJson.topicId);
+        html += '<div id="topicsHtml"></div>';
         html += '<label for="difficulty" id="labelDifficulty">Schwierigkeitsgrad: </label>';
         html += '<input type="range" id="difficulty" name="difficulty" class="formdata" min="0" max="3" value="'+eJson.difficulty+'" oninput="styleDifficulty(this.value)"><br />\n';
         html += 'Aufgabe im mdTeX-Format:<br />\n';
@@ -77,7 +75,6 @@
         html += '<label>Jahr: </label><input type="text" name="year" class="formdata" value="'+eJson.year+'"></input><br />\n';
         html += '<label>Lizenz: </label><select type="text" id="licenseId" name="licenseId" class="formdata">\n';
         html += '</select><br />\n';
-        loadLicenses(eJson.licenseId);
         html += 'Kommentar/Keywords für die Suche:<br />\n';
         html += '<textarea name="comment" id="comment" class="formdata" rows="5" cols="72">'+eJson.comment+'</textarea><br />\n';
         html += '<button type="button" onclick="preview(\'comment\')">Vorschau</button>\n';
@@ -86,6 +83,8 @@
         html += '<input type="range" id="zOrder" name="zOrder" class="formdata" min="0" max="10000" value="'+eJson.zOrder+'"><br />\n';
         html += '<button type="button" onclick="save()">Speichern</button>\n';
         document.getElementById('content').innerHTML = html;
+        loadTopics(eJson.topicId);
+        loadLicenses(eJson.licenseId);
     }
     function reloadExercise(id) {
         var xhr = new XMLHttpRequest();
@@ -97,6 +96,18 @@
         }
         xhr.send(id);
     }
+    var subjectTopics = {};
+    function showTopics(subj, idActive) {
+        var topicsHtml = '';
+        for (var item of subjectTopics[subj]) {
+            if (idActive == item.id) {
+                topicsHtml += '<option value="'+item.id+'" selected="selected">'+item.topic+'</option>';
+            } else {
+                topicsHtml += '<option value="'+item.id+'">'+item.topic+'</option>';
+            }
+        }
+        document.getElementById('topicId').innerHTML = topicsHtml;
+    }
     function loadTopics(idActive) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{{ relroot }}getTopicsJson');
@@ -106,18 +117,38 @@
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
                     Json = JSON.parse(xhr.responseText);
-                    optionsHtml = '';
                     for (var item of Json) {
-                        if (idActive == item.id) {
-                            optionsHtml += '<option value="'+item.id+'" selected="selected">'+item.topic+'</option>';
-                        } else {
-                            optionsHtml += '<option value="'+item.id+'">'+item.topic+'</option>';
+                        if (!subjectTopics.hasOwnProperty(item.subject)) {
+                            subjectTopics[item.subject] = [];
+                        }
+                        subjectTopics[item.subject].push(item);
+                    }
+                    var topicsHtml = ''
+                    for (var item in subjectTopics) {
+                        topicsHtml += '<label>'+item+'</label>';
+                        topicsHtml += '<input type="radio" id="'+item+'" name="subject" value="item.key" onchange="showTopics(\''+item+'\', \''+idActive+'\')"/><br />';
+                    }
+                    topicsHtml += '<label>Thema: </label><select type="text" id="topicId" name="topicId" class="formdata">\n';
+                    topicsHtml += '</select><br />\n';
+                    //for (var item of Json) {
+                    //    if (idActive == item.id) {
+                    //        optionsHtml += '<option value="'+item.id+'" selected="selected">'+item.topic+'</option>';
+                    //    } else {
+                    //        optionsHtml += '<option value="'+item.id+'">'+item.topic+'</option>';
+                    //    }
+                    //}
+                } else {
+                    topicsHtml = 'ERROR '+xhr.status+'while processing ajax-request'
+                }
+                document.getElementById('topicsHtml').innerHTML = topicsHtml;
+                for (var item in subjectTopics) {
+                    for (var it of subjectTopics[item]) {
+                        if (it.id == idActive) {
+                            document.getElementById(item).checked = true;
+                            showTopics(item, it.id)
                         }
                     }
-                } else {
-                    optionsHtml = 'ERROR '+xhr.status+'while processing ajax-request'
                 }
-                document.getElementById('topicId').innerHTML = optionsHtml;
             }
         };
     }
@@ -159,7 +190,6 @@
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (isNaN(xhr.responseText)) {
                     alert(xhr.responseText);
-                    console.log(xhr.responseText);
                 } else {
                     window.location = '{{ relroot }}exercise/'+xhr.responseText;
                 }
