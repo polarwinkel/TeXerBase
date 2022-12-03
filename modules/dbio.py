@@ -105,6 +105,20 @@ class ExerDb:
         self._connection.commit()
         return result
     
+    def deleteExercise(self, eid):
+        ''' delete an exercise '''
+        cursor = self._connection.cursor()
+        sqlTemplate = '''DELETE FROM exercises 
+                WHERE id=?;'''
+        try:
+            cursor.execute(sqlTemplate, eid)
+            result = 'ok'
+        except sqlite3.OperationalError as err:
+            args = list(err.args)
+            result = 'FAILED: SQL-Error: '+str(args)
+        self._connection.commit()
+        return result
+    
     def getExerciseList(self, sid='', tid='', searchword=''):
         '''returns a List of exercises (as dict) matching the filter criteria (all for no filters)'''
         cursor = self._connection.cursor()

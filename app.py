@@ -111,6 +111,17 @@ def sendExercise(eid):
     eJson = json.dumps(e)
     return render_template('exercise.html', relroot=relroot, e=e, eJson = eJson)
 
+@app.route('/exercise/<string:eid>', methods=['DELETE'])
+def deleteExercise(eid):
+    '''delete exercise'''
+    relroot = '../'
+    db = dbio.ExerDb(dbfile)
+    if eid.isnumeric():
+        result = db.deleteExercise(eid)
+    else:
+        return 'ERROR: no valid exercise id!'
+    return result
+
 @app.route('/sheetNew/<string:sid>', methods=['GET'])
 def sendSheetNew(sid):
     '''show sheetNew-page'''

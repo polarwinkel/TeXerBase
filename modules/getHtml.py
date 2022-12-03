@@ -13,8 +13,8 @@ from jinja2 import Template
 
 def getStart(subjects, topics, exerciseList):
     '''returns the html for the startpage'''
-    result = '<h1>TeXerBase Aufgabendatenbank</h1>\n'
-    result += '<h2>Vorhandene Aufgaben:</h2>\n'
+    result = '<h1>TeXerBase Exercise Database</h1>\n'
+    result += '<h2>Exercises:</h2>\n'
     for sub in subjects:
         #result += '<p><a href="viewExerciseList/%s">%s</a></p>\n' % (sub['id'], sub['subject'])
         result += '<details><summary style="font-size:1.4em; font-weight: bold;">%s</summary><ul>\n' % sub['subject']
@@ -24,8 +24,8 @@ def getStart(subjects, topics, exerciseList):
                 result += getExerciseTable(exerciseList, topic)
                 result += '</details>'
         result += '</details>'
-    result += '<p><a href="./exercise/">Neue Aufgabe erstellen</a></p>'
-    result += '<h2>Aufgabenblatt erstellen:</h2>\n'
+    result += '<p><a href="./exercise/">Create New Exercise</a></p>'
+    result += '<h2>Create New Sheet:</h2>\n'
     for sub in subjects:
         result += '<p><a href="sheetNew/%s">%s</a></p>\n' % (sub['id'], sub['subject'])
     return result
@@ -56,15 +56,15 @@ def getSheet(title, exercises, option):
     i = 1
     if option=='exercises' or option=='':
         for ex in exercises:
-            result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex['title'])
+            result += '<h2>Exercise %s: %s</h2>' % (str(i), ex['title'])
             result += mdtex2html.convert(ex['exercise'])
             i+=1
     elif option == 'solutions':
         for ex in exercises:
-            result += '<h2>Aufgabe %s: %s</h2>' % (str(i), ex['title'])
+            result += '<h2>Exercise %s: %s</h2>' % (str(i), ex['title'])
             solution = mdtex2html.convert(ex['solution'])
             if solution == '':
-                result += '[keine Lösung vorhanden]'
+                result += '[no solution given]'
             else:
                 result += solution
             i+=1
@@ -85,6 +85,6 @@ def getTest():
     result = mdtex2html.convert(mdtex)
     result += '<br>\n'
     result += 'Webrequest-Test:<br>\n'
-    result += '<div id="requestbox">Ursprünglicher Requestbox-Testinhalt</div>\n'
+    result += '<div id="requestbox">Initial Requestbox-Testcontent</div>\n'
     result += '<button onClick="request();">request-test</button>\n'
     return result

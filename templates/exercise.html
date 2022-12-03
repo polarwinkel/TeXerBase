@@ -2,7 +2,7 @@
 
 {% block content %}
 {% if e['id'] == '' %}
-    <h1 id="title">Neue Aufgabe</h1></h1>
+    <h1 id="title">New Exercise</h1></h1>
 {% else %}
     <h1 id="title">{{ e['title'] }}</h1></h1>
 {% endif %}
@@ -11,6 +11,7 @@
 
 <script src="{{ relroot }}static/getFormJson.js"></script> 
 <script src="{{ relroot }}static/plotLine.min.js"></script> 
+<script src="{{ relroot }}static/polalert.js"></script>
 <script>
     var eJson = JSON.parse({{ eJson|tojson }});
     function mdtex2html(mdtex, element) {
@@ -36,11 +37,14 @@
         }
     }
     function show(eJson) {
-        html = '<div id="exercise"></div>\n';
+        html = '<p style="text-align:center;" class="no-print">';
+        html += '<a onclick="edit()">edit</a> | ';
+        html += '<a onclick="pa.boolean(\'Really delete this exercise?<br />It will be gone forever!\', \'delete\');">delete</a></p>\n';
+        html += '<div id="exercise"></div>\n';
         mdtex2html(eJson.exercise, 'exercise');
         if (eJson.solution != '') {
             html += '<hr />\n';
-            html += '<h2>Lösung</h2>\n';
+            html += '<h2>solution</h2>\n';
             html += '<div id="solution"></div>\n';
             mdtex2html(eJson.solution, 'solution');
         }
@@ -49,42 +53,65 @@
         }
         if (eJson.comment != '') {
             html += '<hr />\n';
-            html += '<h2>Bemerkungen</h2>\n';
+            html += '<h2>Comment</h2>\n';
             html += '<div id="comment"></div>\n';
             mdtex2html(eJson.comment, 'comment');
         }
-        html += '<p style="text-align:right;" class="no-print" onclick="edit()"><a>Aufgabe bearbeiten</a></p>\n';
         document.getElementById('content').innerHTML = html;
     }
     function edit() {
         html = '<input type="hidden" name="id" class="formdata" value="'+eJson.id+'">\n';
-        html += '<label>Titel: </label><input type="text" name="title" class="formdata" value="'+eJson.title+'" /><br />\n';
+        html += '<label>title: </label><input type="text" name="title" class="formdata" value="'+eJson.title+'" /><br />\n';
         html += '<div id="topicsHtml"></div>';
-        html += '<label for="difficulty" id="labelDifficulty">Schwierigkeitsgrad: </label>';
+        html += '<label for="difficulty" id="labelDifficulty">difficulty: </label>';
         html += '<input type="range" id="difficulty" name="difficulty" class="formdata" min="0" max="3" value="'+eJson.difficulty+'" oninput="styleDifficulty(this.value)"><br />\n';
-        html += 'Aufgabe im mdTeX-Format:<br />\n';
+        html += 'Exercise in mdTeX-format:<br />\n';
         html += '<textarea name="exercise" id="exercise" class="formdata" rows="20" cols="72">'+eJson.exercise+'</textarea><br />\n';
-        html += '<button type="button" onclick="preview(\'exercise\')">Vorschau</button>\n';
+        html += '<button type="button" onclick="preview(\'exercise\')">preview</button>\n';
         html += '<div id="previewexercise"></div>\n';
-        html += 'Lösung:<br />\n';
+        html += 'solution:<br />\n';
         html += '<textarea name="solution" id="solution" class="formdata" rows="20" cols="72">'+eJson.solution+'</textarea><br />\n';
-        html += '<button type="button" onclick="preview(\'solution\')">Vorschau</button>\n';
+        html += '<button type="button" onclick="preview(\'solution\')">preview</button>\n';
         html += '<div id="previewsolution"></div>\n';
-        html += '<label>Quelle: </label><input type="text" name="origin" class="formdata" value="'+eJson.origin+'" /><br />\n';
-        html += '<label>Autor: </label><input type="text" name="author" class="formdata" value="'+eJson.author+'"></input><br />\n';
-        html += '<label>Jahr: </label><input type="text" name="year" class="formdata" value="'+eJson.year+'"></input><br />\n';
-        html += '<label>Lizenz: </label><select type="text" id="licenseId" name="licenseId" class="formdata">\n';
+        html += '<label>source: </label><input type="text" name="origin" class="formdata" value="'+eJson.origin+'" /><br />\n';
+        html += '<label>author: </label><input type="text" name="author" class="formdata" value="'+eJson.author+'"></input><br />\n';
+        html += '<label>year: </label><input type="text" name="year" class="formdata" value="'+eJson.year+'"></input><br />\n';
+        html += '<label>license: </label><select type="text" id="licenseId" name="licenseId" class="formdata">\n';
         html += '</select><br />\n';
-        html += 'Kommentar/Keywords für die Suche:<br />\n';
+        html += 'comments/keywords for search:<br />\n';
         html += '<textarea name="comment" id="comment" class="formdata" rows="5" cols="72">'+eJson.comment+'</textarea><br />\n';
-        html += '<button type="button" onclick="preview(\'comment\')">Vorschau</button>\n';
-        html += '<div id="previewcomment"></div>\n';
-        html += '<label for="zOrder">zIndex (Sortierung): </label>\n';
+        //html += '<button type="button" onclick="preview(\'comment\')">preview</button>\n';
+        //html += '<div id="previewcomment"></div>\n';
+        html += '<label for="zOrder">zIndex (sorting): </label>\n';
         html += '<input type="range" id="zOrder" name="zOrder" class="formdata" min="0" max="10000" value="'+eJson.zOrder+'"><br />\n';
-        html += '<button type="button" onclick="save()">Speichern</button>\n';
+        html += '<button type="button" onclick="save()">Save</button>\n';
         document.getElementById('content').innerHTML = html;
         loadTopics(eJson.topicId);
         loadLicenses(eJson.licenseId);
+    }
+    function paOk(str) {
+        deleteExercise();
+        //console.log('kill it');
+    }
+    function paNo(str) {
+    }
+    function deleteExercise() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE', '{{ relroot }}exercise/'+eJson.id);
+        xhr.setRequestHeader("Content-Type", "text/text");
+        xhr.send();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
+                    var result = xhr.responseText;
+                    if (result == 'ok') {
+                        window.location.href = '../';
+                    } else {
+                        pa.message(result);
+                    }
+                }
+            }
+        };
     }
     function reloadExercise(id) {
         var xhr = new XMLHttpRequest();
@@ -128,7 +155,7 @@
                         topicsHtml += '<label>'+item+'</label>';
                         topicsHtml += '<input type="radio" id="'+item+'" name="subject" value="item.key" onchange="showTopics(\''+item+'\', \''+idActive+'\')"/><br />';
                     }
-                    topicsHtml += '<label>Thema: </label><select type="text" id="topicId" name="topicId" class="formdata">\n';
+                    topicsHtml += '<label>topic: </label><select type="text" id="topicId" name="topicId" class="formdata">\n';
                     topicsHtml += '</select><br />\n';
                     //for (var item of Json) {
                     //    if (idActive == item.id) {
