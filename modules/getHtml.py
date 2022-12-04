@@ -35,8 +35,8 @@ def getExerciseTable(exerciseList, topic):# may become deprecated, still needed 
     result = '<table><tr>\n'
     result += '<th style="width:1em;"></th>'
     result += '<th style="width:2em;"></th>'
-    result += '<th style="width:80%">Titel</th>\n'
-    result += '<th>Schwierigkeit</th>\n'
+    result += '<th style="width:80%">Title</th>\n'
+    result += '<th>Skill</th>\n'
     result += '</tr>\n'
     for exe in exerciseList:
         if exe['topicId']==topic['id']:

@@ -68,22 +68,23 @@ function checkFilter(exe) {
     }
     return true;
 }
-function loadExerciseLists(filter) {
+function loadExerciseLists(doFilter) {
     for (t of topics) {
-        var out = '<table><tr><th style="width:1em;"></th><th style="width:2em;"></th><th style="width:80%">Title</th><th>Skill</th></tr>';
+        var out = '<table><tr><th style="width:1em;"></th>';
+        if (!doFilter) out += '<th style="width:2em;"></th>';
+        out += '<th style="width:80%">Title</th><th>Skill</th></tr>';
         var select = true;
         for (e of exes) {
-            if (filter) {
+            if (doFilter) {
                 var select = checkFilter(e);
             }
             if ((e.topicId == t.id) && select) {
                 out += '<tr id="etr'+e.id+'">';
-                out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n'
-                out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>'
-                out += '/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n'
-                out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n'
-                out += '<td>'+e.difficulty+'</td>\n'
-                out += '</tr>\n'
+                out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n';
+                if (!doFilter) out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n';
+                out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n';
+                out += '<td>'+e.difficulty+'</td>\n';
+                out += '</tr>\n';
             }
         }
         out += '</table>\n';
