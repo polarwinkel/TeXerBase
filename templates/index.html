@@ -4,9 +4,9 @@
 
 <script src="{{ relroot }}static/plotLine.min.js"></script> 
 <script>
-var subjects = JSON.parse('{{ subjects|safe }}');
-var topics = JSON.parse('{{ topics|safe }}');
-var exes = JSON.parse('{{ exes|safe }}');
+var subjects = {{ subjects|tojson }};
+var topics = {{ topics|safe }};
+var exes = {{ exes|safe }};
 
 function move(tid, eid, direction, elem) {
     var ttable = elem.parentNode.parentNode.parentNode.parentNode;

@@ -41,9 +41,9 @@ def index():
     # TODO: return settings if first run (no database)
     relroot = './'
     db = dbio.ExerDb(dbfile)
-    subjects = json.dumps(db.getSubjects())
-    topics = json.dumps(db.getTopics())
-    exes = json.dumps(db.getExerciseList())
+    subjects = db.getSubjects()
+    topics = db.getTopics()
+    exes = db.getExerciseList()
     #content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())#deprecated, rendering in frontend now
     return render_template('index.html', relroot=relroot, subjects=subjects, topics=topics, exes=exes)
 
