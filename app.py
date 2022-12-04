@@ -134,7 +134,7 @@ def sendSheetNew(sid):
     topics = db.getTopics(sid)
     return render_template('sheetNew.html', relroot=relroot, exerlist=exerlist, topics=topics)
 
-@app.route('/images', methods=['GET'])
+@app.route('/images/', methods=['GET'])
 def imgages():
     files = os.listdir(imgFolder)
     #print(json.dumps(files, indent=4, sort_keys=True)) # show files-dict for debugging and reference
@@ -229,11 +229,12 @@ def post_saveExercise():
 def initStuff():
     ''' make sure everything is set up and tidy '''
     if not os.path.exists(imgFolder):
-        os.makedir(imgFolder)
+        os.makedirs(imgFolder)
     db = dbio.ExerDb(dbfile)
     topics = db.getTopics()
     for t in topics:
         db.topicZIndexNormalize(t['id'])
+initStuff()
 
 # run it:
 
