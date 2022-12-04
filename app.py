@@ -224,6 +224,17 @@ def post_saveExercise():
     elif postvars['id'].isnumeric():
         return db.editExercise(postvars)
 
+# init-stuff:
+
+def initStuff():
+    ''' make sure everything is set up and tidy '''
+    if not os.path.exists(imgFolder):
+        os.makedir(imgFolder)
+    db = dbio.ExerDb(dbfile)
+    topics = db.getTopics()
+    for t in topics:
+        db.topicZIndexNormalize(t['id'])
+
 # run it:
 
 if __name__ == '__main__':

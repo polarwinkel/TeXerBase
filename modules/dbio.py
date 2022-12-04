@@ -71,6 +71,7 @@ class ExerDb:
             return 'FAILED: SQL-Error: '+str(args)
         self._connection.commit()
         exerId = self.checkTitle(e['title'])
+        self.topicZIndexNormalize(e['topicId'])
         if exerId >= 0:
             return exerId
         else:
@@ -306,7 +307,7 @@ class ExerDb:
         sqlTemplate = '''SELECT id FROM exercises WHERE topicId=? ORDER BY zOrder'''
         cursor.execute(sqlTemplate, (tid, ))
         eids = cursor.fetchall()
-        step = 10000 // (len(eids)+1)
+        step = 10000 / (len(eids)+1)
         z = step
         sqlTemplate = '''UPDATE exercises SET zOrder=? WHERE id=?'''
         for eid in eids:
