@@ -41,8 +41,11 @@ def index():
     # TODO: return settings if first run (no database)
     relroot = './'
     db = dbio.ExerDb(dbfile)
-    content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())
-    return render_template('index.html', relroot=relroot, content=content)
+    subjects = json.dumps(db.getSubjects())
+    topics = json.dumps(db.getTopics())
+    exes = json.dumps(db.getExerciseList())
+    #content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())#deprecated, rendering in frontend now
+    return render_template('index.html', relroot=relroot, subjects=subjects, topics=topics, exes=exes)
 
 @app.route('/changeZ', methods=['PATCH'])
 def patch_changeZ():

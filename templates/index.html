@@ -4,6 +4,10 @@
 
 <script src="{{ relroot }}static/plotLine.min.js"></script> 
 <script>
+var subjects = JSON.parse('{{ subjects|safe }}');
+var topics = JSON.parse('{{ topics|safe }}');
+var exes = JSON.parse('{{ exes|safe }}');
+
 function move(tid, eid, direction, elem) {
     var ttable = elem.parentNode.parentNode.parentNode.parentNode;
     var xhr = new XMLHttpRequest();
@@ -39,7 +43,7 @@ function loadExercise(eid) {
             if (xhr.status === 0 || (xhr.status >= 200 && status < 400)) {
                 exer = xhr.responseText;
                 var etr = document.getElementById('etr'+eid);
-                etr.cells[0].innerHTML = '<a onclick="unloadExercise('+eid+')">-</a>';
+                etr.cells[0].innerHTML = '<a onclick="unloadExercise('+eid+')">&minus;</a>';
                 etr.cells[2].innerHTML += '<hr>' + exer;
                 runInnerHtmlJs(etr.cells[2]);
             }
@@ -49,12 +53,50 @@ function loadExercise(eid) {
 }
 function unloadExercise(eid) {
     var etr = document.getElementById('etr'+eid);
-    etr.cells[0].innerHTML = '<a onclick="loadExercise('+eid+')">+</a>';
+    etr.cells[0].innerHTML = '<a onclick="loadExercise('+eid+')">&plus;</a>';
     var pos = etr.cells[2].innerHTML.search('<hr>');
     etr.cells[2].innerHTML = etr.cells[2].innerHTML.substring(0,pos-1);
 }
+function loadExerciseLists(filter) {
+    for (t of topics) {
+        var out = '<table><tr><th style="width:1em;"></th><th style="width:2em;"></th><th style="width:80%">Title</th><th>Skill</th></tr>';
+        for (e of exes) {
+            if (e.topicId == t.id) {
+            out += '<tr id="etr'+e.id+'">';
+            out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n'
+            out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>'
+            out += '/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n'
+            out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n'
+            out += '<td>'+e.difficulty+'</td>\n'
+            out += '</tr>\n'
+            }
+        }
+        out += '</table>\n';
+        document.getElementById('t'+t.id).innerHTML = out;
+    }
+}
 </script>
 
-{{ content|safe }}
+<h1>TeXerBase Exercise Database</h1>
+<h2>Exercises:</h2>
+<script>
+    for (s of subjects) {
+        document.write('<details><summary style="font-size:1.4em; font-weight: bold;">'+s.subject+'</summary><ul>');
+        for (t of topics) {
+            if (t.subjectId == s.id) {
+                document.write('<li><details><summary>'+t.topic+'</summary>');
+                document.write('<div id="t'+t.id+'">loading exerciseList...</div>');
+                document.write('</details>');
+            }
+        }
+        document.write('</details>\n');
+    }
+    document.write('<p><a href="./exercise/">Create New Exercise</a></p>');
+    document.write('<h2>Create New Sheet:</h2>\n');
+    for (s of subjects) {
+        document.write('<p><a href="sheetNew/'+s.id+'">'+s.subject+'</a></p>\n');
+    }
+    loadExerciseLists('');
+</script>
 
 {% endblock %}

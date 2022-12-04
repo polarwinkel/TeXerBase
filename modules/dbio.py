@@ -123,25 +123,25 @@ class ExerDb:
         '''returns a List of exercises (as dict) matching the filter criteria (all for no filters)'''
         cursor = self._connection.cursor()
         if sid=='' and tid == '' and searchword == '':
-            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises ORDER BY zOrder'''
+            sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises ORDER BY zOrder'''
             cursor.execute(sqlTemplate)
         elif tid == '' and searchword == '':
-            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
+            sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE topicId IN (SELECT id FROM topics WHERE subjectId=?)
                     ORDER BY zOrder'''
             cursor.execute(sqlTemplate, (tid, ))
         elif sid == '' and searchword == '':
-            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
+            sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE topicId =?
                     ORDER BY zOrder'''
             cursor.execute(sqlTemplate, (tid, ))
         elif searchword == '':
-            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
+            sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE topicId=?
                     ORDER BY zOrder'''
             cursor.execute(sqlTemplate, (topic, ))
         else:
-            sqlTemplate = '''SELECT id, title, topicId, difficulty FROM exercises 
+            sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE title LIKE '%?%' OR exercise LIKE '%?%' OR solution LIKE '%?%' OR comment LIKE '%?%'
                     ORDER BY zOrder'''
             cursor.execute(sqlTemplate, (searchword, searchword, searchword, searchword))
@@ -154,7 +154,8 @@ class ExerDb:
                         'id'        : t[0],
                         'title'     : t[1],
                         'topicId'   : t[2],
-                        'difficulty': t[3]
+                        'difficulty': t[3],
+                        'comment'   : t[4]
                     })
         return result
     

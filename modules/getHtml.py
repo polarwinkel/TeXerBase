@@ -11,7 +11,7 @@ The output language is german.
 import mdtex2html
 from jinja2 import Template
 
-def getStart(subjects, topics, exerciseList):
+def getStart(subjects, topics, exerciseList):#deprecated
     '''returns the html for the startpage'''
     result = '<h1>TeXerBase Exercise Database</h1>\n'
     result += '<h2>Exercises:</h2>\n'
@@ -30,7 +30,7 @@ def getStart(subjects, topics, exerciseList):
         result += '<p><a href="sheetNew/%s">%s</a></p>\n' % (sub['id'], sub['subject'])
     return result
 
-def getExerciseTable(exerciseList, topic):
+def getExerciseTable(exerciseList, topic):# may become deprecated, still needed for changeZ
     ''' returns an overview of exercises for a topic'''
     result = '<table><tr>\n'
     result += '<th style="width:1em;"></th>'
