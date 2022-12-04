@@ -56,7 +56,7 @@ def patch_changeZ():
     db.exerZMove(pv['tid'], pv['eid'], pv['direction'])
     topic = db.getTopic(pv['tid'])
     exerciseList = db.getExerciseList('', topic['id'])
-    result = getHtml.getExerciseTable(exerciseList, topic)
+    result = getHtml.getExerciseTable(exerciseList, topic)#TODO: send data as json
     #content = getHtml.getStart(db.getSubjects(), db.getTopics(), db.getExerciseList())
     return result
 

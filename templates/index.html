@@ -57,18 +57,33 @@ function unloadExercise(eid) {
     var pos = etr.cells[2].innerHTML.search('<hr>');
     etr.cells[2].innerHTML = etr.cells[2].innerHTML.substring(0,pos-1);
 }
+function checkFilter(exe) {
+    var filter = document.getElementById('filter').value.split(' ');
+    for (f of filter) {
+        if (
+                (!exe.title.toLowerCase().includes(f.toLowerCase()))
+                && (!exe.comment.toLowerCase().includes(f.toLowerCase()))) {
+            return false;
+        }
+    }
+    return true;
+}
 function loadExerciseLists(filter) {
     for (t of topics) {
         var out = '<table><tr><th style="width:1em;"></th><th style="width:2em;"></th><th style="width:80%">Title</th><th>Skill</th></tr>';
+        var select = true;
         for (e of exes) {
-            if (e.topicId == t.id) {
-            out += '<tr id="etr'+e.id+'">';
-            out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n'
-            out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>'
-            out += '/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n'
-            out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n'
-            out += '<td>'+e.difficulty+'</td>\n'
-            out += '</tr>\n'
+            if (filter) {
+                var select = checkFilter(e);
+            }
+            if ((e.topicId == t.id) && select) {
+                out += '<tr id="etr'+e.id+'">';
+                out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n'
+                out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>'
+                out += '/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n'
+                out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n'
+                out += '<td>'+e.difficulty+'</td>\n'
+                out += '</tr>\n'
             }
         }
         out += '</table>\n';
@@ -79,6 +94,9 @@ function loadExerciseLists(filter) {
 
 <h1>TeXerBase Exercise Database</h1>
 <h2>Exercises:</h2>
+<input type="text" id="filter">
+<label for="filter">filter:</label>
+<button onclick="loadExerciseLists(true)">apply filter</button>
 <script>
     for (s of subjects) {
         document.write('<details><summary style="font-size:1.4em; font-weight: bold;">'+s.subject+'</summary><ul>');
@@ -96,7 +114,7 @@ function loadExerciseLists(filter) {
     for (s of subjects) {
         document.write('<p><a href="sheetNew/'+s.id+'">'+s.subject+'</a></p>\n');
     }
-    loadExerciseLists('');
+    loadExerciseLists(false);
 </script>
 
 {% endblock %}
