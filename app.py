@@ -79,17 +79,10 @@ def sendTest():
     content += getHtml.getTest()
     return render_template('index.html', relroot=relroot, content=content)
 
-@app.route('/svgCheatsheet', methods=['GET'])
-def SendSvgCheatsheet():
-    '''show svgCheatsheet-page'''
-    relroot = './'
-    db = dbio.ExerDb(dbfile)
-    return render_template('svgCheatsheet.html', relroot=relroot)
-
-@app.route('/mdTeXCheatsheet', methods=['GET'])
+@app.route('/mdTeXCheatsheet/', methods=['GET'])
 def SendMdTeXCheatsheet():
     '''show mdTeXCheatsheet-page'''
-    relroot = './'
+    relroot = '../'
     db = dbio.ExerDb(dbfile)
     return render_template('mdTeXCheatsheet.html', relroot=relroot)
 
