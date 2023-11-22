@@ -130,7 +130,7 @@ class ExerDb:
             sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE topicId IN (SELECT id FROM topics WHERE subjectId=?)
                     ORDER BY zOrder'''
-            cursor.execute(sqlTemplate, (tid, ))
+            cursor.execute(sqlTemplate, (sid, ))
         elif sid == '' and searchword == '':
             sqlTemplate = '''SELECT id, title, topicId, difficulty, comment FROM exercises 
                     WHERE topicId =?

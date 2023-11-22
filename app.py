@@ -169,7 +169,8 @@ def sendSheet(sheet):
     option = sheet.split(';')[2]
     #nav = ''
     content = getHtml.getSheet(title, exercises, option)
-    return render_template('index.html', relroot=relroot, content=content)
+    subjects = db.getSubjects()
+    return render_template('sheet.html', relroot=relroot, content=content, subjects=subjects)
 
 @app.route('/mdtex2html', methods=['POST'])
 def post_mdtex2html():
