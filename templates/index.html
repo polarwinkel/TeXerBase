@@ -70,8 +70,9 @@ function checkFilter(exe) {
 }
 function loadExerciseLists(doFilter) {
     for (t of topics) {
-        var out = '<table><tr><th style="width:1em;"></th>';
+        var out = '<table class="ttable"><tr><th style="width:1em;"></th>';
         if (!doFilter) out += '<th style="width:2em;"></th>';
+        else out += '<th style="width:0;"></th>';
         out += '<th style="width:80%">Title</th><th>Skill</th></tr>';
         var select = true;
         for (e of exes) {
@@ -82,6 +83,7 @@ function loadExerciseLists(doFilter) {
                 out += '<tr id="etr'+e.id+'">';
                 out += '<td style="vertical-align: top;"><a onclick="loadExercise('+e.id+')">+</a></td>\n';
                 if (!doFilter) out += '<td><a onclick="move('+t.id+', '+e.id+', -1, this)">&uarr;</a>/<a onclick="move('+t.id+', '+e.id+', 1, this)">&darr;</a></td>\n';
+                else out += '<td></td>';
                 out += '<td><a href="./exercise/'+e.id+'">'+e.title+'</a></td>\n';
                 out += '<td>'+e.difficulty+'</td>\n';
                 out += '</tr>\n';
@@ -89,15 +91,35 @@ function loadExerciseLists(doFilter) {
         }
         out += '</table>\n';
         document.getElementById('t'+t.id).innerHTML = out;
+        // expand details on filter if not empty:
+        if (doFilter) {
+			let det = document.getElementsByTagName('details');
+			for (let d of det) {
+				let tabs = d.getElementsByClassName('ttable');
+				let open = false;
+				for (let tab of tabs) {
+					if (tab.rows.length > 1) {
+						open = true;
+					}
+				}
+				d.open = open;
+			}
+		}
     }
+}
+function filterinput(value) {
+	if (value.length>0) {
+		loadExerciseLists(true);
+	} else {
+		loadExerciseLists(false);
+	}
 }
 </script>
 
 <h1>TeXerBase Exercise Database</h1>
 <h2>Exercises:</h2>
-<input type="text" id="filter">
+<input type="text" id="filter" oninput="filterinput(this.value)">
 <label for="filter">filter:</label>
-<button onclick="loadExerciseLists(true)">apply filter</button>
 <script>
     for (s of subjects) {
         document.write('<details><summary style="font-size:1.4em; font-weight: bold;">'+s.subject+'</summary><ul>');
